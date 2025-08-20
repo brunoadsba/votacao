@@ -80,20 +80,28 @@ function attachDelegatedHandlers() {
 }
 
 function init() {
+	console.log('🚀 Função init() iniciada');
 	setTimeout(() => {
+		console.log('⏰ Timeout executado');
 		document.getElementById('loading').classList.add('hidden');
+		console.log('📱 Loading screen ocultada');
+		
 		const urlParams = new URLSearchParams(window.location.search);
 		const admin = urlParams.get('admin');
+		console.log('🔑 Admin param:', admin);
 		
 		if (admin === 'true') {
+			console.log('👨‍💼 Mostrando login admin');
 			showAdminLogin();
 			attachDelegatedHandlers();
 			return;
 		}
 		
 		// Mostrar tela de boas-vindas por padrão
+		console.log('👋 Mostrando tela de boas-vindas');
 		showWelcomeScreen();
 		attachDelegatedHandlers();
+		console.log('✅ Init concluído');
 	}, 1000);
 }
 

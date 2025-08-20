@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Votação - 1º Hackathon+ SESI Saúde</title>
+    <title>Sistema de Avaliação e Votação</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
@@ -13,8 +13,8 @@
         .star:hover { color: #f59e0b; }
         @media print { .no-print { display: none !important; } }
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .sesi-orange { color: #FF6B35; }
-        .sesi-blue { color: #1E40AF; }
+        .primary-color { color: #1E40AF; }
+.secondary-color { color: #FF6B35; }
         .idea-card { transition: all 0.3s ease; border-left: 4px solid #e5e7eb; }
         .idea-card:hover { border-left-color: #3b82f6; transform: translateY(-2px); }
     </style>
@@ -45,7 +45,7 @@
             <div class="text-center mb-6">
                 <i class="fas fa-shield-alt text-4xl text-blue-600 mb-4"></i>
                 <h2 class="text-2xl font-bold text-gray-800">Painel Administrativo</h2>
-                <p class="text-gray-600">1º Hackathon+ SESI Saúde</p>
+                <p class="text-gray-600">Sistema de Avaliação e Votação</p>
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Senha de Acesso:</label>
@@ -69,7 +69,7 @@
                     <div class="flex justify-center items-center mb-4">
                         <i class="fas fa-brain text-5xl text-blue-600 mr-4"></i>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-800">1º Hackathon+ SESI Saúde</h1>
+                            <h1 class="text-3xl font-bold text-gray-800">Sistema de Avaliação e Votação</h1>
                             <p class="text-lg text-gray-600">Workshop - Definição dos Desafios</p>
                         </div>
                     </div>
@@ -137,7 +137,7 @@
                     <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
                     <h2 class="text-2xl font-bold text-green-700 mb-4">Votação Enviada com Sucesso!</h2>
                     <p class="text-green-600 mb-4">Suas avaliações foram registradas e enviadas para a consolidação.</p>
-                    <p class="text-gray-600 text-sm">Obrigado pela sua participação no 1º Hackathon+ SESI Saúde</p>
+                    <p class="text-gray-600 text-sm">Obrigado pela sua participação no Sistema de Avaliação e Votação</p>
                     <div id="backup-data" class="mt-4 p-3 bg-blue-50 rounded text-xs text-left overflow-auto max-h-32"></div>
                 </div>
             </div>
@@ -146,7 +146,7 @@
         <!-- Footer -->
         <footer class="bg-gray-800 text-white py-6 mt-12">
             <div class="max-w-6xl mx-auto px-4 text-center">
-                <p class="text-lg font-semibold">1º Hackathon+ SESI Saúde</p>
+                <p class="text-lg font-semibold">Sistema de Avaliação e Votação</p>
                 <p class="text-gray-400">Desenvolvido por Bruno Almeida</p>
             </div>
         </footer>
@@ -159,7 +159,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h1 class="text-2xl font-bold">Painel Administrativo</h1>
-                        <p class="text-gray-300">1º Hackathon+ SESI Saúde</p>
+                        <p class="text-gray-300">Sistema de Avaliação e Votação</p>
                     </div>
                     <div class="flex items-center space-x-4">
                         <button onclick="exportAllData()" class="bg-purple-600 px-4 py-2 rounded hover:bg-purple-700 transition-colors">
@@ -261,10 +261,10 @@
         // Firebase Config (RTDB + Fallback)
         const firebaseConfig = {
             apiKey: "AIzaSyCbH6vvO75BNUik6d-2xFmszXvXbC9zLbo",
-            authDomain: "hackathon-sesi.firebaseapp.com",
-            databaseURL: "https://hackathon-sesi-default-rtdb.firebaseio.com/",
-            projectId: "hackathon-sesi",
-            storageBucket: "hackathon-sesi.firebasestorage.app",
+            authDomain: "sistema-votacao.firebaseapp.com",
+            databaseURL: "https://sistema-votacao-default-rtdb.firebaseio.com/",
+            projectId: "sistema-votacao",
+            storageBucket: "sistema-votacao.firebasestorage.app",
             messagingSenderId: "124533455216",
             appId: "1:124533455216:web:21397ca5efbfb95235f7b5"
         };
@@ -658,7 +658,7 @@
             const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
             const allResults = [...viableResults, ...disruptiveResults].sort((a, b) => b.totalScore - a.totalScore);
             
-            let resultsText = '=== RESULTADOS CONSOLIDADOS - 1º HACKATHON+ SESI SAÚDE ===\n\n';
+            let resultsText = '=== RESULTADOS CONSOLIDADOS - SISTEMA DE AVALIAÇÃO E VOTAÇÃO ===\n\n';
             
             resultsText += '🏆 CAMPEÃO GERAL:\n';
             if (allResults[0]) {
@@ -704,7 +704,7 @@
             const url = URL.createObjectURL(dataBlob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `hackathon_dados_completos_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `sistema_votacao_dados_completos_${new Date().toISOString().split('T')[0]}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

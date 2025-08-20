@@ -1,6 +1,6 @@
-# 🏥 Sistema de Votação - 1º Hackathon+ SESI Saúde
+# 🏥 Sistema de Avaliação e Votação
 
-Sistema moderno de votação e avaliação de ideias para workshops de inovação em saúde ocupacional, com dashboard em tempo real e interface responsiva.
+Sistema moderno de votação e avaliação de ideias para workshops de inovação, reuniões corporativas e eventos, com dashboard em tempo real e interface responsiva.
 
 ## ✨ Funcionalidades
 
@@ -38,7 +38,7 @@ Sistema moderno de votação e avaliação de ideias para workshops de inovaçã
 ## 📁 Estrutura do Projeto
 
 ```
-hackathon/
+sistema-votacao/
 ├── assets/
 │   ├── css/
 │   │   └── styles.css
@@ -86,8 +86,8 @@ hackathon/
 ### Desenvolvimento Local
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/brunoadsba/votacao.git
-cd votacao
+git clone https://github.com/brunoadsba/sistema-votacao.git
+cd sistema-votacao
 
 # 2. Instale dependências (opcional)
 npm install
@@ -166,8 +166,8 @@ O sistema inclui 18 participantes com códigos únicos:
 ## 🎨 Personalização
 
 ### Cores e Estilo
-- **SESI Blue**: `#1E40AF`
-- **SESI Orange**: `#FF6B35`
+- **Cor Principal**: `#1E40AF`
+- **Cor Secundária**: `#FF6B35`
 - **Framework**: Tailwind CSS com classes customizadas
 
 ### Layout Responsivo
@@ -223,4 +223,4 @@ Para dúvidas ou problemas:
 
 ---
 
-**Desenvolvido com ❤️ para o 1º Hackathon+ SESI Saúde**
+**Sistema desenvolvido para avaliação e votação de ideias em workshops e eventos corporativos**

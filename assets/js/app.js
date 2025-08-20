@@ -245,7 +245,7 @@ async function copyResults() {
 	const viableResults = calculateResults(viableIdeas, allVotes);
 	const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
 	const allResults = [...viableResults, ...disruptiveResults].sort((a, b) => b.totalScore - a.totalScore);
-	let resultsText = '=== RESULTADOS CONSOLIDADOS - 1º HACKATHON+ SESI SAÚDE ===\n\n';
+	let resultsText = '=== RESULTADOS CONSOLIDADOS - SISTEMA DE AVALIAÇÃO E VOTAÇÃO ===\n\n';
 	resultsText += '🏆 CAMPEÃO GERAL:\n';
 	if (allResults[0]) resultsText += `${allResults[0].title} - ${allResults[0].totalScore} pontos\n\n`;
 	resultsText += '🔥 TOP 3 IDEIAS VIÁVEIS:\n';

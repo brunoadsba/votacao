@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Codes - 1º Hackathon+ SESI Saúde</title>
+    <title>QR Codes - Sistema de Avaliação e Votação</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
@@ -43,7 +43,7 @@
         }
     </script>
     <style>
-        .sesi-gradient { background: linear-gradient(135deg, #1E40AF 0%, #FF6B35 100%); }
+        .primary-gradient { background: linear-gradient(135deg, #1E40AF 0%, #FF6B35 100%); }
         .participant-card { 
             transition: all 0.3s ease; 
             border-left: 4px solid #e5e7eb;
@@ -89,13 +89,13 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="sesi-gradient text-white shadow-lg no-print">
+            <header class="primary-gradient text-white shadow-lg no-print">
         <div class="max-w-7xl mx-auto px-4 py-8">
             <div class="text-center">
                 <div class="flex justify-center items-center mb-4">
                     <i class="fas fa-qrcode text-5xl mr-4"></i>
                     <div>
-                        <h1 class="text-4xl font-bold">1º Hackathon+ SESI Saúde</h1>
+                        <h1 class="text-4xl font-bold">Sistema de Avaliação e Votação</h1>
                         <p class="text-xl text-blue-100">QR Codes dos Participantes</p>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-6 mt-12 no-print">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-lg font-semibold">1º Hackathon+ SESI Saúde</p>
+                            <p class="text-lg font-semibold">Sistema de Avaliação e Votação</p>
             <p class="text-gray-400">Desenvolvido por Bruno Almeida</p>
         </div>
     </footer>
@@ -222,7 +222,7 @@
                         width: 180,
                         margin: 1,
                         color: {
-                            dark: '#1E40AF',  // SESI Blue
+                            dark: '#1E40AF',  // Primary Blue
                             light: '#FFFFFF'
                         },
                         errorCorrectionLevel: 'M'
@@ -297,7 +297,7 @@
             
             document.body.innerHTML = `
                 <div style="padding: 20px; text-align: center;">
-                    <h1 style="margin-bottom: 20px;">1º Hackathon+ SESI Saúde</h1>
+                    <h1 style="margin-bottom: 20px;">Sistema de Avaliação e Votação</h1>
                     ${cardHTML}
                 </div>
             `;
@@ -330,7 +330,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'qr_codes_hackathon_sesi.html';
+            a.download = 'qr_codes_sistema_votacao.html';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

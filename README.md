@@ -1,6 +1,6 @@
-# 🏥 Sistema de Avaliação e Votação
+# 🎯 Sistema de Avaliação e Votação
 
-Sistema moderno de votação e avaliação de ideias para workshops de inovação, reuniões corporativas e eventos, com dashboard em tempo real e interface responsiva.
+Sistema profissional de votação e avaliação de ideias para workshops corporativos, eventos de inovação e reuniões de brainstorming. Interface moderna, dashboard em tempo real e sistema robusto de persistência de dados.
 
 ## ✨ Funcionalidades
 
@@ -8,13 +8,15 @@ Sistema moderno de votação e avaliação de ideias para workshops de inovaçã
 - **Interface de Participante**: Avaliação de ideias com sistema de estrelas (1-10)
 - **Categorias**: Ideias Viáveis (7) e Ideias Disruptivas (7)
 - **Brainstorm**: Área para anotações e insights durante o workshop
-- **Validação**: Códigos únicos de participante para controle de acesso
+- **Identificação**: Sistema de identificação por nome e data do workshop
+- **Códigos Únicos**: Geração automática de códigos para controle de acesso
 
 ### 📊 Dashboard Administrativo
-- **Status dos Participantes**: Visualização de quem já enviou votação
+- **Status dos Participantes**: Visualização de quem já enviou votação (usuários dinâmicos)
 - **Rankings em Tempo Real**: Top 3 de cada categoria atualizado automaticamente
 - **Resultados Detalhados**: Pontuações, médias e contagem de votos
 - **Exportação**: PDF, cópia de resultados e download de dados
+- **Gestão de Usuários**: Reset de dados e controle de participantes
 
 ### 🔄 Dashboard em Tempo Real
 - **Atualização Automática**: Rankings atualizados via Firebase RTDB/Firestore
@@ -28,35 +30,28 @@ Sistema moderno de votação e avaliação de ideias para workshops de inovaçã
 
 ## 🚀 Tecnologias
 
-- **Frontend**: HTML5, CSS3, JavaScript ES6+
-- **UI Framework**: Tailwind CSS
-- **Ícones**: Font Awesome
+- **Frontend**: HTML5, CSS3, JavaScript ES6+ (ES6 Modules)
+- **UI Framework**: Tailwind CSS com design responsivo
+- **Ícones**: Font Awesome 6.4.0
 - **Backend**: Firebase (Realtime Database + Firestore)
 - **Fallback**: localStorage para funcionamento offline
-- **QR Codes**: Biblioteca qrcode.js com fallbacks
+- **QR Codes**: Biblioteca qrcode.js com múltiplos fallbacks
+- **Arquitetura**: Módulos ES6 com separação de responsabilidades
 
 ## 📁 Estrutura do Projeto
 
 ```
 sistema-votacao/
 ├── assets/
-│   ├── css/
-│   │   └── styles.css
 │   ├── js/
-│   │   ├── data/
-│   │   │   ├── ideas.js          # Ideias viáveis e disruptivas
-│   │   │   └── participants.js   # Lista de participantes
 │   │   ├── services/
-│   │   │   ├── firebase.js       # Configuração Firebase
-│   │   │   └── persistence.js    # Persistência de dados
-│   │   ├── app.js                # Lógica principal
-│   │   ├── ui.js                 # Funções de interface
-│   │   ├── realtime-dashboard.js # Dashboard em tempo real
-│   │   └── vendor/
-│   │       └── qrcode.min.js     # Biblioteca QR Code local
-├── deploy.html                   # Interface principal (participante + admin)
-├── index.html                    # Versão backup
-├── qrcodes_participantes.html    # Geração de QR codes
+│   │   │   └── persistence.js    # Sistema de persistência Firebase + localStorage
+│   │   ├── app.js                # Lógica principal da aplicação
+│   │   └── ui.js                 # Funções de interface e navegação
+├── deploy.html                   # Interface principal (participante + admin) - RECOMENDADO
+├── index.html                    # Versão alternativa
+├── index_legacy.html             # Versão legada para compatibilidade
+├── qrcodes_participantes.html    # Geração e impressão de QR codes
 ├── realtime.html                 # Dashboard em tempo real
 ├── package.json
 └── README.md
@@ -65,13 +60,14 @@ sistema-votacao/
 ## 🎯 Páginas Principais
 
 ### 1. Interface de Participante
-- **URL**: `deploy.html?codigo=H7K9M2`
-- **Funcionalidade**: Votação de ideias, brainstorm, envio de dados
+- **URL**: `deploy.html` (tela de boas-vindas)
+- **Funcionalidade**: Identificação, votação de ideias, brainstorm, envio de dados
+- **Fluxo**: Nome → Data → Votação → Envio
 
 ### 2. Painel Administrativo
-- **URL**: `deploy.html?admin=true`
+- **URL**: `deploy.html` → "Acesso Administrativo"
 - **Senha**: `Br88080187`
-- **Funcionalidade**: Visualização de resultados, exportação, reset de participantes
+- **Funcionalidade**: Visualização de resultados, exportação, gestão de usuários
 
 ### 3. Dashboard em Tempo Real
 - **URL**: `realtime.html`
@@ -98,7 +94,7 @@ python3 -m http.server 5500
 npx http-server -p 5500 -c-1
 
 # 4. Acesse no navegador
-# http://localhost:5500/deploy.html?codigo=H7K9M2
+# http://localhost:5500/deploy.html
 ```
 
 ### Deploy na Vercel
@@ -120,9 +116,16 @@ window.FIREBASE_CONFIG = {
 };
 ```
 
-## 👥 Participantes
+## 👥 Sistema de Participantes
 
-O sistema inclui 18 participantes com códigos únicos:
+### 🔄 Usuários Dinâmicos
+O sistema agora suporta **usuários dinâmicos** que se identificam através de:
+- **Nome completo** do participante
+- **Data do workshop** ou evento
+- **Código único** gerado automaticamente
+
+### 📋 Participantes Pré-definidos (Legado)
+Para compatibilidade, o sistema mantém suporte aos 18 participantes originais:
 
 - `H7K9M2` → André Luiz Carvalho
 - `F3L8N1` → Bruna Ferreira Machado
@@ -187,6 +190,26 @@ O sistema inclui 18 participantes com códigos únicos:
 - **Dispositivos**: Desktop, tablet, mobile
 - **Conectividade**: Online (Firebase) + Offline (localStorage)
 
+## 🆕 Melhorias Recentes
+
+### ✨ Interface e UX
+- **Tela de Boas-vindas**: Interface moderna e profissional para identificação
+- **Navegação Limpa**: Transições suaves entre telas sem sobreposição
+- **Design Responsivo**: Layout otimizado para todos os dispositivos
+- **Sistema de Cores**: Paleta profissional com gradientes e hover effects
+
+### 🔧 Funcionalidades
+- **Usuários Dinâmicos**: Sistema flexível para qualquer número de participantes
+- **Persistência Robusta**: Firebase + localStorage com fallback automático
+- **QR Codes Atualizados**: Geração automática para qualquer domínio
+- **Admin Dashboard**: Gestão completa de usuários e resultados
+
+### 💻 Código e Arquitetura
+- **Módulos ES6**: Estrutura modular e organizada
+- **Separação de Responsabilidades**: UI, lógica e persistência separados
+- **Logs Profissionais**: Sistema de debug limpo e apropriado
+- **Tratamento de Erros**: Gestão robusta de falhas e edge cases
+
 ## 🚀 Roadmap
 
 - [ ] Autenticação OAuth (Google, Microsoft)
@@ -214,13 +237,18 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 ---
 
-## 🆘 Suporte
+## 🆘 Suporte e Contato
 
-Para dúvidas ou problemas:
-1. Verifique a documentação acima
-2. Consulte as issues do repositório
-3. Entre em contato com o desenvolvedor
+### 📚 Documentação
+- **README**: Este arquivo contém todas as informações necessárias
+- **Issues**: Consulte as issues do repositório para problemas conhecidos
+- **Código**: Código limpo e comentado para fácil manutenção
+
+### 💬 Contato
+- **Desenvolvedor**: Bruno Almeida
+- **GitHub**: [@brunoadsba](https://github.com/brunoadsba)
+- **Email**: Disponível através do perfil GitHub
 
 ---
 
-**Sistema desenvolvido para avaliação e votação de ideias em workshops e eventos corporativos**
+**Sistema profissional desenvolvido para avaliação e votação de ideias em workshops corporativos, eventos de inovação e reuniões de brainstorming. Pronto para produção e uso empresarial.**

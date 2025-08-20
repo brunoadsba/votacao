@@ -29,13 +29,42 @@
         </div>
     </div>
 
-    <!-- Access Denied Screen -->
-    <div id="access-denied" class="hidden min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
-            <i class="fas fa-lock text-6xl text-red-500 mb-4"></i>
-            <h1 class="text-2xl font-bold text-red-600 mb-4">Acesso Inválido</h1>
-            <p class="text-gray-600 mb-4">Código de participante não reconhecido ou acesso não autorizado.</p>
-            <p class="text-sm text-gray-500">Entre em contato com o organizador para obter um link válido.</p>
+
+
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full text-center">
+            <div class="text-blue-600 text-6xl mb-6">
+                <i class="fas fa-users"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Bem-vindo ao Sistema de Avaliação e Votação</h1>
+            <p class="text-gray-600 mb-6">Identifique-se para participar do workshop de avaliação de ideias.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="participant-name-input" class="block text-sm font-medium text-gray-700 mb-2">Nome do Participante</label>
+                    <input type="text" id="participant-name-input" placeholder="Digite seu nome completo" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label for="workshop-date" class="block text-sm font-medium text-gray-700 mb-2">Data do Workshop</label>
+                    <input type="date" id="workshop-date" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <button onclick="startVoting()" 
+                        class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105">
+                    <i class="fas fa-play mr-2"></i>Iniciar Avaliação
+                </button>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <button onclick="showAdminLogin()" 
+                        class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                    <i class="fas fa-user-shield mr-2"></i>Acesso Administrativo
+                </button>
+            </div>
         </div>
     </div>
 
@@ -138,7 +167,7 @@
                     <h2 class="text-2xl font-bold text-green-700 mb-4">Votação Enviada com Sucesso!</h2>
                     <p class="text-green-600 mb-4">Suas avaliações foram registradas e enviadas para a consolidação.</p>
                     <p class="text-gray-600 text-sm">Obrigado pela sua participação no Sistema de Avaliação e Votação</p>
-                    <div id="backup-data" class="mt-4 p-3 bg-blue-50 rounded text-xs text-left overflow-auto max-h-32"></div>
+
                 </div>
             </div>
         </div>
@@ -261,10 +290,10 @@
         // Firebase Config (RTDB + Fallback)
         const firebaseConfig = {
             apiKey: "AIzaSyCbH6vvO75BNUik6d-2xFmszXvXbC9zLbo",
-            authDomain: "sistema-votacao.firebaseapp.com",
-            databaseURL: "https://sistema-votacao-default-rtdb.firebaseio.com/",
-            projectId: "sistema-votacao",
-            storageBucket: "sistema-votacao.firebasestorage.app",
+            authDomain: "hackathon-sesi.firebaseapp.com",
+            databaseURL: "https://hackathon-sesi-default-rtdb.firebaseio.com/",
+            projectId: "hackathon-sesi",
+            storageBucket: "hackathon-sesi.firebasestorage.app",
             messagingSenderId: "124533455216",
             appId: "1:124533455216:web:21397ca5efbfb95235f7b5"
         };
@@ -313,32 +342,75 @@
                 document.getElementById('loading').classList.add('hidden');
                 
                 const urlParams = new URLSearchParams(window.location.search);
-                const codigo = urlParams.get('codigo');
                 const admin = urlParams.get('admin');
 
                 if (admin === 'true') {
                     showAdminLogin();
-                } else if (codigo && participants[codigo]) {
-                    currentUser = codigo;
-                    showParticipantInterface();
-                } else {
-                    showAccessDenied();
+                    return;
+                }
+                
+                // Show welcome screen by default
+                const welcomeScreen = document.getElementById('welcome-screen');
+                if (welcomeScreen) {
+                    welcomeScreen.classList.remove('hidden');
                 }
             }, 1000);
         }
 
-        function showAccessDenied() {
-            document.getElementById('access-denied').classList.remove('hidden');
-        }
+
 
         function showAdminLogin() {
-            document.getElementById('admin-login').classList.remove('hidden');
+            // Hide ALL other screens
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const participantInterface = document.getElementById('participant-interface');
+            const adminDashboard = document.getElementById('admin-dashboard');
+            if (welcomeScreen) welcomeScreen.classList.add('hidden');
+            if (participantInterface) participantInterface.classList.add('hidden');
+            if (adminDashboard) adminDashboard.classList.add('hidden');
+            
+            // Show only admin login screen
+            const adminLogin = document.getElementById('admin-login');
+            if (adminLogin) {
+                adminLogin.classList.remove('hidden');
+            }
+        }
+
+        function startVoting() {
+            const participantName = document.getElementById('participant-name-input').value.trim();
+            const workshopDate = document.getElementById('workshop-date').value;
+            
+            if (!participantName || !workshopDate) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+            
+            // Generate unique user code
+            currentUser = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Hide all other screens
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const adminLogin = document.getElementById('admin-login');
+            const adminDashboard = document.getElementById('admin-dashboard');
+            if (welcomeScreen) welcomeScreen.classList.add('hidden');
+            if (adminLogin) adminLogin.classList.add('hidden');
+            if (adminDashboard) adminDashboard.classList.add('hidden');
+            
+            // Show only participant interface
+            document.getElementById('participant-interface').classList.remove('hidden');
+            
+            // Populate fields
+            document.getElementById('participant-name').value = participantName;
+            document.getElementById('meeting-date').value = workshopDate;
+            
+            // Initialize voting
+            loadUserVotes();
+            renderIdeas();
         }
 
         function showParticipantInterface() {
             document.getElementById('participant-interface').classList.remove('hidden');
-            document.getElementById('participant-name').value = participants[currentUser];
             
+            // This function is not used in the new flow, but keeping for compatibility
             const today = new Date();
             document.getElementById('meeting-date').value = today.toISOString().split('T')[0];
             
@@ -349,7 +421,15 @@
         function checkAdminPassword() {
             const password = document.getElementById('admin-password').value;
             if (password === 'Br88080187') {
-                document.getElementById('admin-login').classList.add('hidden');
+                // Hide all other screens
+                const welcomeScreen = document.getElementById('welcome-screen');
+                const adminLogin = document.getElementById('admin-login');
+                const participantInterface = document.getElementById('participant-interface');
+                if (welcomeScreen) welcomeScreen.classList.add('hidden');
+                if (adminLogin) adminLogin.classList.add('hidden');
+                if (participantInterface) participantInterface.classList.add('hidden');
+                
+                // Show only admin dashboard
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 loadAdminDashboard();
             } else {
@@ -426,10 +506,11 @@
         async function submitVoting() {
             const brainstormNotes = document.getElementById('brainstorm-notes').value;
             const meetingDate = document.getElementById('meeting-date').value;
+            const participantName = document.getElementById('participant-name').value;
             
             // Save submission data
             const submissionData = {
-                participant: participants[currentUser],
+                participant: participantName,
                 code: currentUser,
                 votes: userVotes,
                 brainstorm: brainstormNotes,
@@ -444,11 +525,7 @@
             const result = await saveToRTDB(currentUser, submissionData);
             let backendUsed = result.success ? result.backend : 'localStorage';
             
-            // Show submission data for manual backup
-            document.getElementById('backup-data').innerHTML = `
-                <strong>DADOS PARA BACKUP MANUAL:</strong><br>
-                <code>${JSON.stringify(submissionData, null, 2)}</code>
-            `;
+
             
             console.log('📋 DADOS ENVIADOS:', submissionData);
             console.log('🔗 Backend usado:', backendUsed);
@@ -468,14 +545,34 @@
             updateDetailedResults();
         }
 
-        async function updateParticipantsStatus() {
+                async function updateParticipantsStatus() {
             const container = document.getElementById('participants-status');
             
             // BACKUP SOLUTION: Try RTDB first, then localStorage
             const rtdbResult = await getAllFromRTDB();
             const rtdbData = rtdbResult.success ? rtdbResult.data : {};
             
-            const statuses = Object.entries(participants).map(([code, name]) => {
+            // Get all submissions from both RTDB and localStorage
+            const allSubmissions = { ...rtdbData };
+            
+            // Add localStorage submissions
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('submission_')) {
+                    const code = key.replace('submission_', '');
+                    if (!allSubmissions[code]) {
+                        try {
+                            const localData = JSON.parse(localStorage.getItem(key));
+                            allSubmissions[code] = localData;
+                        } catch (e) {
+                            console.error('Erro ao ler dados locais:', e);
+                        }
+                    }
+                }
+            }
+            
+            // Generate status for all submissions
+            const statuses = Object.entries(allSubmissions).map(([code, data]) => {
                 const submittedRTDB = Boolean(rtdbData[code]);
                 const submittedLocal = Boolean(localStorage.getItem(`submission_${code}`));
                 const submitted = submittedRTDB || submittedLocal;
@@ -484,13 +581,14 @@
                 const statusColor = submitted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
                 const icon = submitted ? 'fa-check-circle text-green-500' : 'fa-clock text-yellow-500';
                 const source = submittedRTDB ? '(RTDB)' : submittedLocal ? '(Local)' : '';
+                const participantName = data.participant || 'Participante Desconhecido';
                 
                 return `
                     <div class="p-3 border rounded-lg">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center">
                                 <i class="fas ${icon} mr-2"></i>
-                                <span class="font-medium text-sm">${name}</span>
+                                <span class="font-medium text-sm">${participantName}</span>
                             </div>
                             <button onclick="resetParticipant('${code}')" class="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50 transition-colors" title="Zerar dados deste participante">
                                 <i class="fas fa-trash"></i> Reset
@@ -507,7 +605,22 @@
         }
 
         async function resetParticipant(participantCode) {
-            const participantName = participants[participantCode];
+            // Get participant name from data
+            let participantName = 'Participante Desconhecido';
+            try {
+                const rtdbResult = await getAllFromRTDB();
+                const rtdbData = rtdbResult.success ? rtdbResult.data : {};
+                const localData = localStorage.getItem(`submission_${participantCode}`);
+                
+                if (rtdbData[participantCode] && rtdbData[participantCode].participant) {
+                    participantName = rtdbData[participantCode].participant;
+                } else if (localData) {
+                    const parsed = JSON.parse(localData);
+                    participantName = parsed.participant || 'Participante Desconhecido';
+                }
+            } catch (e) {
+                console.error('Erro ao obter nome do participante:', e);
+            }
             
             if (confirm(`Tem certeza que deseja zerar todos os dados de ${participantName}? Esta ação não pode ser desfeita.`)) {
                 // Remove local data

@@ -138,7 +138,7 @@
                     <h2 class="text-2xl font-bold text-green-700 mb-4">Votação Enviada com Sucesso!</h2>
                     <p class="text-green-600 mb-4">Suas avaliações foram registradas e enviadas para a consolidação.</p>
                     <p class="text-gray-600 text-sm">Obrigado pela sua participação no Sistema de Avaliação e Votação</p>
-                    <div id="backup-data" class="mt-4 p-3 bg-blue-50 rounded text-xs text-left overflow-auto max-h-32"></div>
+
                 </div>
             </div>
         </div>
@@ -261,10 +261,10 @@
         // Firebase Config (RTDB + Fallback)
         const firebaseConfig = {
             apiKey: "AIzaSyCbH6vvO75BNUik6d-2xFmszXvXbC9zLbo",
-            authDomain: "sistema-votacao.firebaseapp.com",
-            databaseURL: "https://sistema-votacao-default-rtdb.firebaseio.com/",
-            projectId: "sistema-votacao",
-            storageBucket: "sistema-votacao.firebasestorage.app",
+            authDomain: "hackathon-sesi.firebaseapp.com",
+            databaseURL: "https://hackathon-sesi-default-rtdb.firebaseio.com/",
+            projectId: "hackathon-sesi",
+            storageBucket: "hackathon-sesi.firebasestorage.app",
             messagingSenderId: "124533455216",
             appId: "1:124533455216:web:21397ca5efbfb95235f7b5"
         };
@@ -444,11 +444,7 @@
             const result = await saveToRTDB(currentUser, submissionData);
             let backendUsed = result.success ? result.backend : 'localStorage';
             
-            // Show submission data for manual backup
-            document.getElementById('backup-data').innerHTML = `
-                <strong>DADOS PARA BACKUP MANUAL:</strong><br>
-                <code>${JSON.stringify(submissionData, null, 2)}</code>
-            `;
+
             
             console.log('📋 DADOS ENVIADOS:', submissionData);
             console.log('🔗 Backend usado:', backendUsed);

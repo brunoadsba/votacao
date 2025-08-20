@@ -1,7 +1,7 @@
 import { participants } from './data/participants.js?v=4';
 import { viableIdeas, disruptiveIdeas } from './data/ideas.js?v=4';
 import { saveSubmission, getAllSubmissions, deleteSubmission, loadUserVotes, saveUserVotes } from './services/persistence.js?v=4';
-import { showWelcomeScreen, showAccessDenied, showAdminLogin, setParticipantHeader, renderIdeas as renderIdeasUI, updateStarDisplay, showSubmissionSuccess, renderParticipantsStatus, renderSummary, renderDetailedResults } from './ui.js?v=4';
+import { showWelcomeScreen, showAdminLogin, setParticipantHeader, renderIdeas as renderIdeasUI, updateStarDisplay, showSubmissionSuccess, renderParticipantsStatus, renderSummary, renderDetailedResults } from './ui.js?v=5';
 
 let currentUser = null;
 let userVotes = {};
@@ -80,28 +80,30 @@ function attachDelegatedHandlers() {
 }
 
 function init() {
-	console.log('🚀 Função init() iniciada');
 	setTimeout(() => {
-		console.log('⏰ Timeout executado');
 		document.getElementById('loading').classList.add('hidden');
-		console.log('📱 Loading screen ocultada');
 		
 		const urlParams = new URLSearchParams(window.location.search);
 		const admin = urlParams.get('admin');
-		console.log('🔑 Admin param:', admin);
 		
 		if (admin === 'true') {
-			console.log('👨‍💼 Mostrando login admin');
 			showAdminLogin();
 			attachDelegatedHandlers();
 			return;
 		}
 		
-		// Mostrar tela de boas-vindas por padrão
-		console.log('👋 Mostrando tela de boas-vindas');
-		showWelcomeScreen();
+		// Show welcome screen by default
+		const welcomeScreen = document.getElementById('welcome-screen');
+		const loadingScreen = document.getElementById('loading');
+		
+		if (welcomeScreen && loadingScreen) {
+			loadingScreen.classList.add('hidden');
+			welcomeScreen.classList.remove('hidden');
+		} else {
+			console.error('Elemento welcome-screen não encontrado!');
+		}
+		
 		attachDelegatedHandlers();
-		console.log('✅ Init concluído');
 	}, 1000);
 }
 
@@ -118,6 +120,7 @@ async function submitVoting() {
 		date: meetingDate,
 		submittedAt: new Date().toISOString()
 	};
+	
 	const result = await saveSubmission(currentUser, submissionData);
 	showSubmissionSuccess(result && result.backend ? result.backend : 'localStorage');
 }
@@ -269,7 +272,16 @@ async function copyResults() {
 async function checkAdminPassword() {
 	const password = document.getElementById('admin-password').value;
 	if (password === 'Br88080187') {
-		document.getElementById('admin-login').classList.add('hidden');
+		// Esconder TODAS as outras telas
+		const welcomeScreen = document.getElementById('welcome-screen');
+		const adminLogin = document.getElementById('admin-login');
+		const participantInterface = document.getElementById('participant-interface');
+		
+		if (welcomeScreen) welcomeScreen.classList.add('hidden');
+		if (adminLogin) adminLogin.classList.add('hidden');
+		if (participantInterface) participantInterface.classList.add('hidden');
+		
+		// Mostrar apenas o dashboard admin
 		document.getElementById('admin-dashboard').classList.remove('hidden');
 		refreshData();
 		return;
@@ -306,8 +318,16 @@ function startVoting() {
 	// Salvar dados do participante
 	userVotes = {};
 	
-	// Configurar interface
-	document.getElementById('welcome-screen').classList.add('hidden');
+	// Configurar interface - esconder TODAS as outras telas
+	const welcomeScreen = document.getElementById('welcome-screen');
+	const adminLogin = document.getElementById('admin-login');
+	const adminDashboard = document.getElementById('admin-dashboard');
+	
+	if (welcomeScreen) welcomeScreen.classList.add('hidden');
+	if (adminLogin) adminLogin.classList.add('hidden');
+	if (adminDashboard) adminDashboard.classList.add('hidden');
+	
+	// Mostrar apenas a interface de participante
 	document.getElementById('participant-interface').classList.remove('hidden');
 	
 	// Preencher dados
@@ -318,10 +338,21 @@ function startVoting() {
 	renderIdeas();
 }
 
-function showAdminLogin() {
-	document.getElementById('welcome-screen').classList.add('hidden');
-	document.getElementById('admin-login').classList.remove('hidden');
+// Função para exportar PDF (simples - usa print do navegador)
+function exportToPDF() {
+	window.print();
 }
+
+// Tornar funções acessíveis globalmente para HTML onclick
+window.startVoting = startVoting;
+window.showAdminLogin = showAdminLogin;
+window.checkAdminPassword = checkAdminPassword;
+window.submitVoting = submitVoting;
+window.exportToPDF = exportToPDF;
+window.copyResults = copyResults;
+window.refreshData = refreshData;
+
+// Função showAdminLogin removida - já está sendo importada do ui.js
 
 document.addEventListener('DOMContentLoaded', init);
 

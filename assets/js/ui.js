@@ -1,10 +1,7 @@
 export function showWelcomeScreen() {
-	console.log('showWelcomeScreen chamada');
 	const welcomeScreen = document.getElementById('welcome-screen');
-	console.log('Elemento welcome-screen encontrado:', welcomeScreen);
 	if (welcomeScreen) {
 		welcomeScreen.classList.remove('hidden');
-		console.log('Classe hidden removida');
 	} else {
 		console.error('Elemento welcome-screen não encontrado!');
 	}
@@ -15,7 +12,22 @@ export function showAccessDenied() {
 }
 
 export function showAdminLogin() {
-	document.getElementById('admin-login').classList.remove('hidden');
+	// Hide ALL other screens
+	const welcomeScreen = document.getElementById('welcome-screen');
+	const participantInterface = document.getElementById('participant-interface');
+	const adminDashboard = document.getElementById('admin-dashboard');
+	
+	if (welcomeScreen) welcomeScreen.classList.add('hidden');
+	if (participantInterface) participantInterface.classList.add('hidden');
+	if (adminDashboard) adminDashboard.classList.add('hidden');
+	
+	// Show only admin login screen
+	const adminLogin = document.getElementById('admin-login');
+	if (adminLogin) {
+		adminLogin.classList.remove('hidden');
+	} else {
+		console.error('Elemento admin-login não encontrado!');
+	}
 }
 
 export function setParticipantHeader(name) {

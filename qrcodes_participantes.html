@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Codes - 1º Hackathon+ SESI Saúde</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // Loader robusto: tenta múltiplas origens até a API ficar disponível
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src;
+                s.async = true;
+                s.onload = () => resolve(true);
+                s.onerror = () => reject(new Error('failed'));
+                document.head.appendChild(s);
+            });
+        }
+        async function ensureQRCodeLib() {
+            // já disponível (node-qrcode)
+            if (window.QRCode && typeof QRCode.toCanvas === 'function') return 'node-qrcode';
+            // já disponível (qrcodejs)
+            if (window.QRCode && typeof QRCode === 'function' && !QRCode.toCanvas) return 'qrcodejs';
+            const sources = [
+                '/assets/js/vendor/qrcode.min.js',
+                'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
+            ];
+            for (const src of sources) {
+                try { await loadScript(src); } catch (_) {}
+                // verificação após carregar
+                if (window.QRCode && typeof QRCode.toCanvas === 'function') return 'node-qrcode';
+                if (window.QRCode && typeof QRCode === 'function' && !QRCode.toCanvas) return 'qrcodejs';
+                // aguarda um pouco para execução do script
+                await new Promise(r => setTimeout(r, 200));
+                if (window.QRCode && typeof QRCode.toCanvas === 'function') return 'node-qrcode';
+                if (window.QRCode && typeof QRCode === 'function' && !QRCode.toCanvas) return 'qrcodejs';
+            }
+            return null;
+        }
+    </script>
+    <style>
+        .sesi-gradient { background: linear-gradient(135deg, #1E40AF 0%, #FF6B35 100%); }
+        .participant-card { 
+            transition: all 0.3s ease; 
+            border-left: 4px solid #e5e7eb;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .participant-card:hover { 
+            border-left-color: #1E40AF; 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .participant-card { 
+                break-inside: avoid; 
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+            }
+            body { background: white !important; }
+        }
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #1E40AF;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="sesi-gradient text-white shadow-lg no-print">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="text-center">
+                <div class="flex justify-center items-center mb-4">
+                    <i class="fas fa-qrcode text-5xl mr-4"></i>
+                    <div>
+                        <h1 class="text-4xl font-bold">1º Hackathon+ SESI Saúde</h1>
+                        <p class="text-xl text-blue-100">QR Codes dos Participantes</p>
+                    </div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-2xl mx-auto">
+                    <p class="text-lg">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Cada participante deve escanear apenas o seu QR code para acessar o sistema de votação
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Controls -->
+    <div class="max-w-7xl mx-auto px-4 py-6 no-print">
+        <div class="flex flex-wrap justify-center gap-4">
+            <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                <i class="fas fa-print mr-2"></i>Imprimir Todos
+            </button>
+            <button onclick="generateAllQR()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                <i class="fas fa-sync-alt mr-2"></i>Regenerar QR Codes
+            </button>
+            <button onclick="downloadPage()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+                <i class="fas fa-download mr-2"></i>Baixar Página
+            </button>
+        </div>
+    </div>
+
+    <!-- Status -->
+    <div class="max-w-7xl mx-auto px-4 mb-6 no-print">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+            <p class="text-blue-800">
+                <i class="fas fa-users mr-2"></i>
+                <span id="status">Carregando QR codes...</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- QR Codes Grid -->
+    <div class="max-w-7xl mx-auto px-4 pb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="qr-grid">
+            <!-- QR codes will be generated here -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-lg font-semibold">1º Hackathon+ SESI Saúde</p>
+            <p class="text-gray-400">Desenvolvido por Bruno Almeida</p>
+        </div>
+    </footer>
+
+    <script>
+        // Participants data
+        const participants = {
+            'H7K9M2': 'André Luiz Carvalho',
+            'F3L8N1': 'Bruna Ferreira Machado',
+            'R5T2P9': 'Caio Roberto Nogueira',
+            'K8W4D6': 'Daniela Marques Teixeira',
+            'M1B7X5': 'Eduardo Pereira da Silva',
+            'Q9C3Z8': 'Fernanda Souza Correia',
+            'T6Y2V4': 'Guilherme Almeida Castro',
+            'J4S1G9': 'Helena Araújo Monteiro',
+            'A8E5L3': 'Isabela Moura Santana',
+            'P2N6U7': 'João Pedro Barbosa',
+            'W9I4O1': 'Karina Oliveira Ramos',
+            'D5H8K2': 'Leandro Martins Farias',
+            'B3F7R6': 'Mariana Costa Ribeiro',
+            'X1Q4T8': 'Nicolas Henrique Duarte',
+            'C7V2J5': 'Patrícia Andrade Lopes',
+            'N4L9S3': 'Renato Figueiredo Campos',
+            'G6Z8A1': 'Sabrina Rocha Pacheco',
+            'Y2M5E7': 'Tiago Moreira Bastos'
+        };
+
+        // usa o domínio atual (Vercel/localhost) e permite override via ?host=
+        const hostOverride = new URLSearchParams(location.search).get('host');
+        const origin = hostOverride || window.location.origin;
+        const baseURL = `${origin}/deploy.html?codigo=`;
+
+        function createParticipantCard(code, name) {
+            const url = baseURL + code;
+            return `
+                <div class="participant-card bg-white rounded-lg shadow-sm p-6">
+                    <div class="text-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-1">${name}</h3>
+                        <p class="text-sm text-gray-500">Código: ${code}</p>
+                    </div>
+                    
+                    <div class="qr-container mb-4" id="qr-${code}">
+                        <div class="loading-spinner"></div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <p class="text-xs text-gray-600 mb-2 break-all">${url}</p>
+                        <div class="flex gap-2 justify-center no-print">
+                            <button onclick="printSingle('${code}')" class="text-blue-600 hover:text-blue-800 text-sm px-3 py-1 border border-blue-300 rounded hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-print mr-1"></i>Imprimir
+                            </button>
+                            <button onclick="copyURL('${url}')" class="text-green-600 hover:text-green-800 text-sm px-3 py-1 border border-green-300 rounded hover:bg-green-50 transition-colors">
+                                <i class="fas fa-copy mr-1"></i>Copiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function generateQRCode(code, name) {
+            const url = baseURL + code;
+            const container = document.getElementById(`qr-${code}`);
+            
+            try {
+                const mode = await ensureQRCodeLib();
+                if (!mode) throw new Error('QRCode library not loaded');
+                // Clear loading spinner
+                container.innerHTML = '';
+                
+                // Create canvas for QR code
+                const canvas = document.createElement('canvas');
+                if (QRCode.toCanvas) {
+                    await QRCode.toCanvas(canvas, url, {
+                        width: 180,
+                        margin: 1,
+                        color: {
+                            dark: '#1E40AF',  // SESI Blue
+                            light: '#FFFFFF'
+                        },
+                        errorCorrectionLevel: 'M'
+                    });
+                } else {
+                    // fallback qrcodejs que usa construtor e renderiza em DOM diretamente
+                    const div = document.createElement('div');
+                    container.appendChild(div);
+                    new QRCode(div, {
+                        text: url,
+                        width: 180,
+                        height: 180,
+                        colorDark : '#1E40AF',
+                        colorLight : '#FFFFFF',
+                        correctLevel : 1
+                    });
+                    return;
+                }
+                
+                container.appendChild(canvas);
+                
+            } catch (error) {
+                console.error(`Erro ao gerar QR code para ${name}:`, error);
+                container.innerHTML = `
+                    <div class="text-red-500 text-center">
+                        <i class="fas fa-exclamation-triangle mb-2"></i>
+                        <p class="text-sm">Erro ao gerar QR Code</p>
+                        <button onclick="generateQRCode('${code}', '${name}')" class="text-blue-600 underline text-xs mt-1">
+                            Tentar novamente
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        async function generateAllQR() {
+            const grid = document.getElementById('qr-grid');
+            const status = document.getElementById('status');
+            
+            // Clear grid and create cards
+            grid.innerHTML = '';
+            
+            const participantEntries = Object.entries(participants);
+            
+            // Create all cards first
+            participantEntries.forEach(([code, name]) => {
+                grid.innerHTML += createParticipantCard(code, name);
+            });
+            
+            // Generate QR codes progressively
+            let completed = 0;
+            const total = participantEntries.length;
+            
+            status.innerHTML = `Gerando QR codes... 0/${total}`;
+            
+            for (const [code, name] of participantEntries) {
+                await generateQRCode(code, name);
+                completed++;
+                status.innerHTML = `Gerando QR codes... ${completed}/${total}`;
+                
+                // Small delay to prevent overwhelming the browser
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            status.innerHTML = `✅ ${total} QR codes gerados com sucesso!`;
+        }
+
+        function printSingle(code) {
+            const card = document.querySelector(`#qr-${code}`).closest('.participant-card');
+            const originalContent = document.body.innerHTML;
+            const cardHTML = card.outerHTML;
+            
+            document.body.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h1 style="margin-bottom: 20px;">1º Hackathon+ SESI Saúde</h1>
+                    ${cardHTML}
+                </div>
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            
+            // Regenerate QR codes after print
+            setTimeout(() => {
+                generateAllQR();
+            }, 100);
+        }
+
+        function copyURL(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                // Show temporary success message
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                toast.textContent = 'URL copiada!';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 2000);
+            });
+        }
+
+        function downloadPage() {
+            const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'qr_codes_hackathon_sesi.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            generateAllQR();
+        });
+
+        // Regenerate QR codes after print
+        window.addEventListener('afterprint', () => {
+            setTimeout(() => {
+                generateAllQR();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

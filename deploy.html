@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Votação - 1º Hackathon+ SESI Saúde</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Loading Screen -->
+    <div id="loading" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mb-4"></div>
+            <p class="text-gray-600">Carregando sistema...</p>
+        </div>
+    </div>
+
+    <!-- Access Denied Screen -->
+    <div id="access-denied" class="hidden min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+            <i class="fas fa-lock text-6xl text-red-500 mb-4"></i>
+            <h1 class="text-2xl font-bold text-red-600 mb-4">Acesso Inválido</h1>
+            <p class="text-gray-600 mb-4">Código de participante não reconhecido ou acesso não autorizado.</p>
+            <p class="text-sm text-gray-500">Entre em contato com o organizador para obter um link válido.</p>
+        </div>
+    </div>
+
+    <!-- Admin Login Screen -->
+    <div id="admin-login" class="hidden min-h-screen flex items-center justify-center gradient-bg">
+        <div class="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full">
+            <div class="text-center mb-6">
+                <i class="fas fa-shield-alt text-4xl text-blue-600 mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Painel Administrativo</h2>
+                <p class="text-gray-600">1º Hackathon+ SESI Saúde</p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Senha de Acesso:</label>
+                <input type="password" id="admin-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite a senha">
+            </div>
+            <button onclick="checkAdminPassword()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+            </button>
+            <div id="login-error" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                Senha incorreta. Tente novamente.
+            </div>
+        </div>
+    </div>
+
+    <!-- Participant Voting Interface -->
+    <div id="participant-interface" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b-4 border-blue-600">
+            <div class="max-w-6xl mx-auto px-4 py-6">
+                <div class="text-center">
+                    <div class="flex justify-center items-center mb-4">
+                        <i class="fas fa-brain text-5xl text-blue-600 mr-4"></i>
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800">1º Hackathon+ SESI Saúde</h1>
+                            <p class="text-lg text-gray-600">Workshop - Definição dos Desafios</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Avaliação e Desenvolvimento de Ideias com IA</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Data:</label>
+                                <input type="date" id="meeting-date" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Participante:</label>
+                                <input type="text" id="participant-name" class="w-full p-2 border rounded bg-gray-100" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Voting Interface -->
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div id="voting-active">
+                <!-- Ideias Viáveis -->
+                <section class="mb-12">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-3"></i>
+                        Ideias Viáveis
+                    </h2>
+                    <div class="grid gap-6" id="viable-ideas"></div>
+                </section>
+
+                <!-- Ideias Disruptivas -->
+                <section class="mb-12">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-rocket text-purple-500 mr-3"></i>
+                        Ideias Disruptivas
+                    </h2>
+                    <div class="grid gap-6" id="disruptive-ideas"></div>
+                </section>
+
+                <!-- Brainstorm Area -->
+                <section class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-comments text-green-500 mr-3"></i>
+                        Espaço para Brainstorm
+                    </h2>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <textarea id="brainstorm-notes" rows="6" class="w-full p-4 border rounded-lg focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Digite suas anotações, insights e observações da reunião aqui..."></textarea>
+                    </div>
+                </section>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button onclick="submitVoting()" class="bg-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>📤 Finalizar e Enviar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Submission Confirmation -->
+            <div id="submission-success" class="hidden text-center py-12">
+                <div class="bg-green-50 p-8 rounded-lg max-w-2xl mx-auto">
+                    <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-green-700 mb-4">Votação Enviada com Sucesso!</h2>
+                    <p class="text-green-600 mb-4">Suas avaliações foram registradas e enviadas para a consolidação.</p>
+                    <p class="text-gray-600 text-sm">Obrigado pela sua participação no 1º Hackathon+ SESI Saúde</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-6 mt-12">
+            <div class="max-w-6xl mx-auto px-4 text-center">
+                <p class="text-lg font-semibold">1º Hackathon+ SESI Saúde</p>
+                <p class="text-gray-400">Desenvolvido por Bruno Almeida</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="hidden">
+        <header class="bg-gray-800 text-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold">Painel Administrativo</h1>
+                        <p class="text-gray-300">1º Hackathon+ SESI Saúde</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="exportToPDF()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-file-pdf mr-2"></i>Salvar PDF
+                        </button>
+                        <button onclick="copyResults()" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700 transition-colors">
+                            <i class="fas fa-copy mr-2"></i>Copiar Resultados
+                        </button>
+                        <button onclick="refreshData()" class="bg-yellow-600 px-4 py-2 rounded hover:bg-yellow-700 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>Atualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Participants Status -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <h2 class="text-xl font-bold mb-4">Status dos Participantes</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="participants-status"></div>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <h2 class="text-xl font-bold mb-4">Resumo dos Resultados</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-yellow-600">🏆 Top 3 - Ideias Viáveis</h3>
+                        <div id="top-viable" class="space-y-2"></div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-purple-600">🚀 Top 3 - Ideias Disruptivas</h3>
+                        <div id="top-disruptive" class="space-y-2"></div>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <div id="overall-champion" class="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4"></div>
+                </div>
+            </div>
+
+            <!-- Detailed Results -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold mb-4">Resultados Detalhados</h2>
+                <div id="detailed-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE CONFIG - ESSENCIAL PARA RTDB -->
+    <script>
+        window.FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCbH6vvO75BNUik6d-2xFmszXvXbC9zLbo",
+            authDomain: "hackathon-sesi.firebaseapp.com",
+            databaseURL: "https://hackathon-sesi-default-rtdb.firebaseio.com/",
+            projectId: "hackathon-sesi",
+            storageBucket: "hackathon-sesi.firebasestorage.app",
+            messagingSenderId: "124533455216",
+            appId: "1:124533455216:web:21397ca5efbfb95235f7b5"
+        };
+        console.log('✅ FIREBASE_CONFIG carregado:', !!window.FIREBASE_CONFIG);
+    </script>
+    <script type="module" src="assets/js/app.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard em Tempo Real - Hackathon SESI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white shadow-sm border-b-4 border-purple-600">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-gray-800">Dashboard em Tempo Real</h1>
+                <span id="meta" class="text-sm text-gray-500"></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <section class="bg-white rounded-lg shadow-sm p-6 border">
+                <h2 class="text-xl font-semibold mb-4 text-yellow-700 flex items-center">
+                    <i class="fas fa-lightbulb mr-2"></i> Ideias Viáveis (Ranking)
+                </h2>
+                <div id="rank-viable"></div>
+            </section>
+            <section class="bg-white rounded-lg shadow-sm p-6 border">
+                <h2 class="text-xl font-semibold mb-4 text-purple-700 flex items-center">
+                    <i class="fas fa-rocket mr-2"></i> Ideias Disruptivas (Ranking)
+                </h2>
+                <div id="rank-disruptive"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- FIREBASE CONFIG reaproveita a mesma do deploy.html -->
+    <script>
+        window.FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCbH6vvO75BNUik6d-2xFmszXvXbC9zLbo",
+            authDomain: "hackathon-sesi.firebaseapp.com",
+            databaseURL: "https://hackathon-sesi-default-rtdb.firebaseio.com/",
+            projectId: "hackathon-sesi",
+            storageBucket: "hackathon-sesi.firebasestorage.app",
+            messagingSenderId: "124533455216",
+            appId: "1:124533455216:web:21397ca5efbfb95235f7b5"
+        };
+    </script>
+    <script type="module" src="assets/js/realtime-dashboard.js?v=4"></script>
+</body>
+</html>
+
+

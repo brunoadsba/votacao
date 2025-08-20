@@ -26,12 +26,12 @@ function renderRanking(containerId, items, accent) {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = items.map((item, idx) => `
-        <div class="flex items-center justify-between p-3 rounded border mb-2 bg-${accent}-50">
-            <div class="flex items-center gap-3">
-                <span class="text-${accent}-700 font-bold">${idx + 1}º</span>
-                <span class="font-medium">${item.title}</span>
+        <div class="flex items-start justify-between p-3 rounded border mb-2 bg-${accent}-50 min-h-[60px]">
+            <div class="flex items-start gap-3 flex-1 min-w-0">
+                <span class="text-${accent}-700 font-bold text-sm flex-shrink-0">${idx + 1}º</span>
+                <span class="font-medium text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
             </div>
-            <div class="text-${accent}-800 font-semibold">${item.total} pts</div>
+            <div class="text-${accent}-800 font-semibold text-sm flex-shrink-0 ml-3">${item.total} pts</div>
         </div>
     `).join('');
 }

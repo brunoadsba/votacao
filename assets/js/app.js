@@ -184,17 +184,17 @@ async function updateResultsSummary() {
 	const viableResults = calculateResults(viableIdeas, allVotes);
 	const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
 	const topViable = viableResults.slice(0, 3).map((item, index) => `
-		<div class="flex items-center p-2 bg-yellow-50 rounded">
-			<span class="font-bold text-yellow-600 mr-2">${index + 1}º</span>
-			<span class="flex-1">${item.title}</span>
-			<span class="font-semibold text-yellow-700">${item.totalScore} pts</span>
+		<div class="flex items-start p-2 bg-yellow-50 rounded min-h-[50px]">
+			<span class="font-bold text-yellow-600 mr-2 flex-shrink-0">${index + 1}º</span>
+			<span class="flex-1 text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
+			<span class="font-semibold text-yellow-700 flex-shrink-0 ml-2">${item.totalScore} pts</span>
 		</div>
 	`).join('');
 	const topDisruptive = disruptiveResults.slice(0, 3).map((item, index) => `
-		<div class="flex items-center p-2 bg-purple-50 rounded">
-			<span class="font-bold text-purple-600 mr-2">${index + 1}º</span>
-			<span class="flex-1">${item.title}</span>
-			<span class="font-semibold text-purple-700">${item.totalScore} pts</span>
+		<div class="flex items-start p-2 bg-purple-50 rounded min-h-[50px]">
+			<span class="font-bold text-purple-600 mr-2 flex-shrink-0">${index + 1}º</span>
+			<span class="flex-1 text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
+			<span class="font-semibold text-purple-700 flex-shrink-0 ml-2">${item.totalScore} pts</span>
 		</div>
 	`).join('');
 	const allResults = [...viableResults, ...disruptiveResults].sort((a, b) => b.totalScore - a.totalScore);
@@ -218,14 +218,14 @@ async function updateDetailedResultsView() {
 			${results.map((item, index) => `
 				<div class="border rounded-lg p-4 mb-3">
 					<div class="flex justify-between items-start mb-2">
-						<h4 class="font-medium text-gray-800">${index + 1}º - ${item.title}</h4>
-						<div class="text-right">
+						<h4 class="font-medium text-gray-800 text-sm leading-relaxed break-words overflow-hidden flex-1 mr-3" style="text-wrap: balance;">${index + 1}º - ${item.title}</h4>
+						<div class="text-right flex-shrink-0">
 							<div class="text-xl font-bold text-blue-600">${item.totalScore} pts</div>
 							<div class="text-sm text-gray-500">${item.votes} votos</div>
 							<div class="text-sm text-gray-500">Média: ${item.average.toFixed(1)}</div>
 						</div>
 					</div>
-					<div class="text-sm text-gray-600">${item.description}</div>
+					<div class="text-sm text-gray-600 leading-relaxed">${item.description}</div>
 				</div>
 			`).join('')}
 		</div>

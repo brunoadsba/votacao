@@ -1,5 +1,13 @@
 export function showWelcomeScreen() {
-	document.getElementById('welcome-screen').classList.remove('hidden');
+	console.log('showWelcomeScreen chamada');
+	const welcomeScreen = document.getElementById('welcome-screen');
+	console.log('Elemento welcome-screen encontrado:', welcomeScreen);
+	if (welcomeScreen) {
+		welcomeScreen.classList.remove('hidden');
+		console.log('Classe hidden removida');
+	} else {
+		console.error('Elemento welcome-screen não encontrado!');
+	}
 }
 
 export function showAccessDenied() {

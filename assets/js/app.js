@@ -83,22 +83,17 @@ function init() {
 	setTimeout(() => {
 		document.getElementById('loading').classList.add('hidden');
 		const urlParams = new URLSearchParams(window.location.search);
-		// const codigo = urlParams.get('codigo'); // Removido - não mais necessário
 		const admin = urlParams.get('admin');
+		
 		if (admin === 'true') {
 			showAdminLogin();
 			attachDelegatedHandlers();
 			return;
 		}
-		if (codigo && participants[codigo]) {
-			currentUser = codigo;
-			userVotes = loadUserVotes(currentUser);
-			setParticipantHeader(participants[currentUser]);
-			renderIdeas();
-			attachDelegatedHandlers();
-			return;
-		}
-		showAccessDenied();
+		
+		// Mostrar tela de boas-vindas por padrão
+		showWelcomeScreen();
+		attachDelegatedHandlers();
 	}, 1000);
 }
 

@@ -1,5 +1,18 @@
 {
+  "name": "votacao",
+  "version": "1.0.0",
+  "description": "Sistema de votação",
+  "main": "index.html",
+  "scripts": {
+    "start": "vercel dev",
+    "build": "echo 'Build completed'",
+    "deploy": "vercel --prod"
+  },
   "dependencies": {
     "firebase": "^12.1.0"
-  }
+  },
+  "devDependencies": {},
+  "keywords": ["votacao", "firebase"],
+  "author": "brunoadsba",
+  "license": "MIT"
 }

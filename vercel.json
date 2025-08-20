@@ -1,76 +1,23 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "name": "sistema-avaliacao-votacao",
-  "builds": [
-    {
-      "src": "**/*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "assets/**/*",
-=======
   "builds": [
     {
       "src": "*.html",
->>>>>>> melhoria
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/",
-      "dest": "/deploy.html"
+      "dest": "/index.html"
     },
     {
-<<<<<<< HEAD
-      "src": "/deploy",
-      "dest": "/deploy.html"
-    },
-    {
-=======
->>>>>>> melhoria
       "src": "/admin",
       "dest": "/deploy.html?admin=true"
     },
     {
-<<<<<<< HEAD
-      "src": "/realtime",
-      "dest": "/realtime.html"
-    },
-    {
-      "src": "/qrcodes",
-      "dest": "/qrcodes_participantes.html"
-    },
-    {
-=======
->>>>>>> melhoria
       "src": "/(.*)",
       "dest": "/$1"
-    }
-  ],
-  "headers": [
-    {
-<<<<<<< HEAD
-      "source": "**/*.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "**/*.html",
-=======
-      "source": "/(.*)",
->>>>>>> melhoria
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
     }
   ]
 }

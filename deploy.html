@@ -18,13 +18,40 @@
         </div>
     </div>
 
-    <!-- Access Denied Screen -->
-    <div id="access-denied" class="hidden min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
-            <i class="fas fa-lock text-6xl text-red-500 mb-4"></i>
-            <h1 class="text-2xl font-bold text-red-600 mb-4">Acesso Inválido</h1>
-            <p class="text-gray-600 mb-4">Código de participante não reconhecido ou acesso não autorizado.</p>
-            <p class="text-sm text-gray-500">Entre em contato com o organizador para obter um link válido.</p>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="min-h-screen flex items-center justify-center gradient-bg">
+        <div class="bg-white p-8 rounded-lg shadow-2xl max-w-2xl w-full mx-4">
+            <div class="text-center mb-8">
+                <i class="fas fa-chart-line text-6xl text-blue-600 mb-6"></i>
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">Sistema de Avaliação e Votação</h1>
+                <p class="text-lg text-gray-600 mb-6">Avalie e vote nas ideias apresentadas no workshop de forma simples e eficiente</p>
+            </div>
+            
+            <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Identificação do Participante</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nome Completo:</label>
+                        <input type="text" id="participant-name-input" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Digite seu nome completo">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data do Workshop:</label>
+                        <input type="date" id="workshop-date" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button onclick="startVoting()" class="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors w-full">
+                    <i class="fas fa-play mr-2"></i>Iniciar Avaliação
+                </button>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <button onclick="showAdminLogin()" class="text-blue-600 hover:text-blue-800 text-sm underline">
+                    <i class="fas fa-shield-alt mr-1"></i>Acesso Administrativo
+                </button>
+            </div>
         </div>
     </div>
 
@@ -59,12 +86,12 @@
                         <i class="fas fa-brain text-5xl text-blue-600 mr-4"></i>
                         <div>
                             <h1 class="text-3xl font-bold text-gray-800">Sistema de Avaliação e Votação</h1>
-                            <p class="text-lg text-gray-600">Workshop - Definição dos Desafios</p>
+                            <p class="text-lg text-gray-600">Workshop de Avaliação de Ideias</p>
                         </div>
                     </div>
                     
                     <div class="bg-blue-50 p-4 rounded-lg">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Avaliação e Desenvolvimento de Ideias com IA</h2>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Avaliação de Propostas e Ideias</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Data:</label>

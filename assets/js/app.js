@@ -1,7 +1,7 @@
 import { participants } from './data/participants.js?v=4';
 import { viableIdeas, disruptiveIdeas } from './data/ideas.js?v=4';
 import { saveSubmission, getAllSubmissions, deleteSubmission, loadUserVotes, saveUserVotes } from './services/persistence.js?v=4';
-import { showAccessDenied, showAdminLogin, setParticipantHeader, renderIdeas as renderIdeasUI, updateStarDisplay, showSubmissionSuccess, renderParticipantsStatus, renderSummary, renderDetailedResults } from './ui.js?v=4';
+import { showWelcomeScreen, showAccessDenied, showAdminLogin, setParticipantHeader, renderIdeas as renderIdeasUI, updateStarDisplay, showSubmissionSuccess, renderParticipantsStatus, renderSummary, renderDetailedResults } from './ui.js?v=4';
 
 let currentUser = null;
 let userVotes = {};
@@ -83,7 +83,7 @@ function init() {
 	setTimeout(() => {
 		document.getElementById('loading').classList.add('hidden');
 		const urlParams = new URLSearchParams(window.location.search);
-		const codigo = urlParams.get('codigo');
+		// const codigo = urlParams.get('codigo'); // Removido - não mais necessário
 		const admin = urlParams.get('admin');
 		if (admin === 'true') {
 			showAdminLogin();
@@ -105,8 +105,10 @@ function init() {
 async function submitVoting() {
 	const brainstormNotes = document.getElementById('brainstorm-notes').value;
 	const meetingDate = document.getElementById('meeting-date').value;
+	const participantName = document.getElementById('participant-name').value;
+	
 	const submissionData = {
-		participant: participants[currentUser],
+		participant: participantName,
 		code: currentUser,
 		votes: userVotes,
 		brainstorm: brainstormNotes,
@@ -124,19 +126,22 @@ async function refreshData() {
 }
 
 async function updateParticipantsStatus() {
-	const codes = Object.keys(participants);
-	const { items } = await getAllSubmissions(codes);
-	const html = Object.entries(participants).map(([code, name]) => {
-		const submitted = Boolean(items && items[code]);
+	const { items } = await getAllSubmissions();
+	const submissions = items || {};
+	
+	const html = Object.entries(submissions).map(([code, data]) => {
+		const submitted = Boolean(data);
 		const status = submitted ? 'Enviado' : 'Pendente';
 		const statusColor = submitted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
 		const icon = submitted ? 'fa-check-circle text-green-500' : 'fa-clock text-yellow-500';
+		const participantName = data ? data.participant : 'Participante';
+		
 		return `
 			<div class="p-3 border rounded-lg">
 				<div class="flex items-center justify-between mb-2">
 					<div class="flex items-center">
 						<i class="fas ${icon} mr-2"></i>
-						<span class="font-medium text-sm">${name}</span>
+						<span class="font-medium text-sm">${participantName}</span>
 					</div>
 					<button data-reset-participant="${code}" class="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50 transition-colors" title="Zerar dados deste participante">
 						<i class="fas fa-trash"></i> Reset
@@ -179,7 +184,7 @@ function calculateResults(ideas, allVotes) {
 }
 
 async function updateResultsSummary() {
-	const { items } = await getAllSubmissions(Object.keys(participants));
+	const { items } = await getAllSubmissions();
 	const allVotes = aggregateVotesFromSubmissions(items);
 	const viableResults = calculateResults(viableIdeas, allVotes);
 	const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
@@ -208,7 +213,7 @@ async function updateResultsSummary() {
 }
 
 async function updateDetailedResultsView() {
-	const { items } = await getAllSubmissions(Object.keys(participants));
+	const { items } = await getAllSubmissions();
 	const allVotes = aggregateVotesFromSubmissions(items);
 	const viableResults = calculateResults(viableIdeas, allVotes);
 	const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
@@ -240,7 +245,7 @@ async function updateDetailedResultsView() {
 }
 
 async function copyResults() {
-	const { items } = await getAllSubmissions(Object.keys(participants));
+	const { items } = await getAllSubmissions();
 	const allVotes = aggregateVotesFromSubmissions(items);
 	const viableResults = calculateResults(viableIdeas, allVotes);
 	const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
@@ -254,7 +259,7 @@ async function copyResults() {
 	disruptiveResults.slice(0, 3).forEach((item, index) => { resultsText += `${index + 1}º - ${item.title} (${item.totalScore} pts)\n`; });
 	resultsText += '\n📊 PARTICIPAÇÃO:\n';
 	const submittedCount = Object.keys(items).length;
-	resultsText += `${submittedCount}/${Object.keys(participants).length} participantes enviaram suas votações\n`;
+	resultsText += `${submittedCount} participantes enviaram suas votações\n`;
 	navigator.clipboard.writeText(resultsText).then(() => alert('Resultados copiados para a área de transferência!'));
 }
 
@@ -275,6 +280,44 @@ async function resetParticipant(participantCode) {
 	await deleteSubmission(participantCode);
 	await refreshData();
 	alert(`Dados de ${participantName} foram zerados com sucesso!`);
+}
+
+// Funções para a nova interface de boas-vindas
+function startVoting() {
+	const participantName = document.getElementById('participant-name-input').value.trim();
+	const workshopDate = document.getElementById('workshop-date').value;
+	
+	if (!participantName) {
+		alert('Por favor, insira seu nome completo.');
+		return;
+	}
+	
+	if (!workshopDate) {
+		alert('Por favor, selecione a data do workshop.');
+		return;
+	}
+	
+	// Criar um código único para o participante
+	currentUser = 'user_' + Date.now();
+	
+	// Salvar dados do participante
+	userVotes = {};
+	
+	// Configurar interface
+	document.getElementById('welcome-screen').classList.add('hidden');
+	document.getElementById('participant-interface').classList.remove('hidden');
+	
+	// Preencher dados
+	document.getElementById('participant-name').value = participantName;
+	document.getElementById('meeting-date').value = workshopDate;
+	
+	// Renderizar ideias
+	renderIdeas();
+}
+
+function showAdminLogin() {
+	document.getElementById('welcome-screen').classList.add('hidden');
+	document.getElementById('admin-login').classList.remove('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', init);

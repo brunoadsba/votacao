@@ -1,3 +1,7 @@
+export function showWelcomeScreen() {
+	document.getElementById('welcome-screen').classList.remove('hidden');
+}
+
 export function showAccessDenied() {
 	document.getElementById('access-denied').classList.remove('hidden');
 }

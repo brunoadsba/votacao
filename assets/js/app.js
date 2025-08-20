@@ -126,9 +126,21 @@ async function submitVoting() {
 }
 
 async function refreshData() {
-	updateParticipantsStatus();
-	updateResultsSummary();
-	updateDetailedResultsView();
+	console.log('🔄 Iniciando refreshData...');
+	try {
+		await updateParticipantsStatus();
+		console.log('✅ Status dos participantes atualizado');
+		
+		await updateResultsSummary();
+		console.log('✅ Resumo dos resultados atualizado');
+		
+		await updateDetailedResultsView();
+		console.log('✅ Resultados detalhados atualizados');
+		
+		console.log('🎉 Dashboard atualizado com sucesso!');
+	} catch (error) {
+		console.error('❌ Erro ao atualizar dashboard:', error);
+	}
 }
 
 async function updateParticipantsStatus() {
@@ -271,7 +283,11 @@ async function copyResults() {
 
 async function checkAdminPassword() {
 	const password = document.getElementById('admin-password').value;
+	console.log('🔐 Tentativa de login admin com senha:', password);
+	
 	if (password === 'Br88080187') {
+		console.log('✅ Senha correta! Exibindo dashboard...');
+		
 		// Esconder TODAS as outras telas
 		const welcomeScreen = document.getElementById('welcome-screen');
 		const adminLogin = document.getElementById('admin-login');
@@ -282,10 +298,19 @@ async function checkAdminPassword() {
 		if (participantInterface) participantInterface.classList.add('hidden');
 		
 		// Mostrar apenas o dashboard admin
-		document.getElementById('admin-dashboard').classList.remove('hidden');
-		refreshData();
+		const adminDashboard = document.getElementById('admin-dashboard');
+		if (adminDashboard) {
+			adminDashboard.classList.remove('hidden');
+			console.log('🎯 Dashboard admin exibido com sucesso!');
+		} else {
+			console.error('❌ Elemento admin-dashboard não encontrado!');
+		}
+		
+		await refreshData();
 		return;
 	}
+	
+	console.log('❌ Senha incorreta!');
 	document.getElementById('login-error').classList.remove('hidden');
 }
 

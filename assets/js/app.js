@@ -144,34 +144,50 @@ async function refreshData() {
 }
 
 async function updateParticipantsStatus() {
-	const { items } = await getAllSubmissions();
-	const submissions = items || {};
-	
-	const html = Object.entries(submissions).map(([code, data]) => {
-		const submitted = Boolean(data);
-		const status = submitted ? 'Enviado' : 'Pendente';
-		const statusColor = submitted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
-		const icon = submitted ? 'fa-check-circle text-green-500' : 'fa-clock text-yellow-500';
-		const participantName = data ? data.participant : 'Participante';
+	console.log('🔄 Buscando dados dos participantes...');
+	try {
+		const { items, backend } = await getAllSubmissions([]);
+		console.log('📊 Dados recebidos:', { backend, count: Object.keys(items || {}).length });
 		
-		return `
-			<div class="p-3 border rounded-lg">
-				<div class="flex items-center justify-between mb-2">
-					<div class="flex items-center">
-						<i class="fas ${icon} mr-2"></i>
-						<span class="font-medium text-sm">${participantName}</span>
+		const submissions = items || {};
+		
+		if (Object.keys(submissions).length === 0) {
+			console.log('⚠️ Nenhum participante encontrado');
+			renderParticipantsStatus('<p class="text-gray-500 text-center p-4">Nenhum participante encontrado</p>');
+			return;
+		}
+		
+		const html = Object.entries(submissions).map(([code, data]) => {
+			const submitted = Boolean(data);
+			const status = submitted ? 'Enviado' : 'Pendente';
+			const statusColor = submitted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+			const icon = submitted ? 'fa-check-circle text-green-500' : 'fa-clock text-yellow-500';
+			const participantName = data ? data.participant : 'Participante';
+			
+			return `
+				<div class="p-3 border rounded-lg">
+					<div class="flex items-center justify-between mb-2">
+						<div class="flex items-center">
+							<i class="fas ${icon} mr-2"></i>
+							<span class="font-medium text-sm">${participantName}</span>
+						</div>
+						<button data-reset-participant="${code}" class="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50 transition-colors" title="Zerar dados deste participante">
+							<i class="fas fa-trash"></i> Reset
+						</button>
 					</div>
-					<button data-reset-participant="${code}" class="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50 transition-colors" title="Zerar dados deste participante">
-						<i class="fas fa-trash"></i> Reset
-					</button>
+					<div class="mt-1">
+						<span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
+					</div>
 				</div>
-				<div class="mt-1">
-					<span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
-				</div>
-			</div>
-		`;
-	}).join('');
-	renderParticipantsStatus(html);
+			`;
+		}).join('');
+		
+		console.log('✅ HTML dos participantes gerado:', html.length, 'caracteres');
+		renderParticipantsStatus(html);
+	} catch (error) {
+		console.error('❌ Erro ao buscar participantes:', error);
+		renderParticipantsStatus('<p class="text-red-500 text-center p-4">Erro ao carregar dados</p>');
+	}
 }
 
 function aggregateVotesFromSubmissions(submissions) {
@@ -202,64 +218,95 @@ function calculateResults(ideas, allVotes) {
 }
 
 async function updateResultsSummary() {
-	const { items } = await getAllSubmissions();
-	const allVotes = aggregateVotesFromSubmissions(items);
-	const viableResults = calculateResults(viableIdeas, allVotes);
-	const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
-	const topViable = viableResults.slice(0, 3).map((item, index) => `
-		<div class="flex items-start p-2 bg-yellow-50 rounded min-h-[50px]">
-			<span class="font-bold text-yellow-600 mr-2 flex-shrink-0">${index + 1}º</span>
-			<span class="flex-1 text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
-			<span class="font-semibold text-yellow-700 flex-shrink-0 ml-2">${item.totalScore} pts</span>
-		</div>
-	`).join('');
-	const topDisruptive = disruptiveResults.slice(0, 3).map((item, index) => `
-		<div class="flex items-start p-2 bg-purple-50 rounded min-h-[50px]">
-			<span class="font-bold text-purple-600 mr-2 flex-shrink-0">${index + 1}º</span>
-			<span class="flex-1 text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
-			<span class="font-semibold text-purple-700 flex-shrink-0 ml-2">${item.totalScore} pts</span>
-		</div>
-	`).join('');
-	const allResults = [...viableResults, ...disruptiveResults].sort((a, b) => b.totalScore - a.totalScore);
-	const champion = allResults[0];
-	const championHtml = champion ? `
-		<h3 class="text-xl font-bold text-yellow-700 mb-2">🏆 CAMPEÃO GERAL</h3>
-		<p class="text-lg font-semibold">${champion.title}</p>
-		<p class="text-2xl font-bold text-yellow-600">${champion.totalScore} pontos</p>
-	` : '';
-	renderSummary({ topViableHtml: topViable, topDisruptiveHtml: topDisruptive, championHtml });
+	console.log('🔄 Atualizando resumo dos resultados...');
+	try {
+		const { items, backend } = await getAllSubmissions([]);
+		console.log('📊 Dados para resumo:', { backend, count: Object.keys(items || {}).length });
+		
+		const allVotes = aggregateVotesFromSubmissions(items);
+		const viableResults = calculateResults(viableIdeas, allVotes);
+		const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
+		
+		const topViable = viableResults.slice(0, 3).map((item, index) => `
+			<div class="flex items-start p-2 bg-yellow-50 rounded min-h-[50px]">
+				<span class="font-bold text-yellow-600 mr-2 flex-shrink-0">${index + 1}º</span>
+				<span class="flex-1 text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
+				<span class="font-semibold text-yellow-700 flex-shrink-0 ml-2">${item.totalScore} pts</span>
+			</div>
+		`).join('');
+		
+		const topDisruptive = disruptiveResults.slice(0, 3).map((item, index) => `
+			<div class="flex items-start p-2 bg-purple-50 rounded min-h-[50px]">
+				<span class="font-bold text-purple-600 mr-2 flex-shrink-0">${index + 1}º</span>
+				<span class="flex-1 text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
+				<span class="font-semibold text-purple-700 flex-shrink-0 ml-2">${item.totalScore} pts</span>
+			</div>
+		`).join('');
+		
+		const allResults = [...viableResults, ...disruptiveResults].sort((a, b) => b.totalScore - a.totalScore);
+		const champion = allResults[0];
+		
+		const championHtml = champion ? `
+			<h3 class="text-xl font-bold text-yellow-700 mb-2">🏆 CAMPEÃO GERAL</h3>
+			<p class="text-lg font-semibold">${champion.title}</p>
+			<p class="text-2xl font-bold text-yellow-600">${champion.totalScore} pontos</p>
+		` : '<p class="text-gray-500">Nenhuma votação ainda</p>';
+		
+		console.log('✅ Resumo gerado com sucesso');
+		renderSummary({ topViableHtml: topViable, topDisruptiveHtml: topDisruptive, championHtml });
+	} catch (error) {
+		console.error('❌ Erro ao gerar resumo:', error);
+		renderSummary({ 
+			topViableHtml: '<p class="text-red-500">Erro ao carregar</p>', 
+			topDisruptiveHtml: '<p class="text-red-500">Erro ao carregar</p>', 
+			championHtml: '<p class="text-red-500">Erro ao carregar</p>' 
+		});
+	}
 }
 
 async function updateDetailedResultsView() {
-	const { items } = await getAllSubmissions();
-	const allVotes = aggregateVotesFromSubmissions(items);
-	const viableResults = calculateResults(viableIdeas, allVotes);
-	const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
-	const section = (title, results) => `
-		<div>
-			<h3 class="text-lg font-semibold mb-4 text-${title.includes('Viáveis') ? 'yellow' : 'purple'}-600">${title}</h3>
-			${results.map((item, index) => `
-				<div class="border rounded-lg p-4 mb-3">
-					<div class="flex justify-between items-start mb-2">
-						<h4 class="font-medium text-gray-800 text-sm leading-relaxed break-words overflow-hidden flex-1 mr-3" style="text-wrap: balance;">${index + 1}º - ${item.title}</h4>
-						<div class="text-right flex-shrink-0">
-							<div class="text-xl font-bold text-blue-600">${item.totalScore} pts</div>
-							<div class="text-sm text-gray-500">${item.votes} votos</div>
-							<div class="text-sm text-gray-500">Média: ${item.average.toFixed(1)}</div>
+	console.log('🔄 Atualizando resultados detalhados...');
+	try {
+		const { items, backend } = await getAllSubmissions([]);
+		console.log('📊 Dados para detalhes:', { backend, count: Object.keys(items || {}).length });
+		
+		const allVotes = aggregateVotesFromSubmissions(items);
+		const viableResults = calculateResults(viableIdeas, allVotes);
+		const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
+		
+		if (Object.keys(allVotes).length === 0) {
+			console.log('⚠️ Nenhuma votação encontrada');
+			renderDetailedResults('<p class="text-gray-500 text-center p-8">Nenhuma votação registrada ainda</p>');
+			return;
+		}
+		
+		const allResults = [...viableResults, ...disruptiveResults].sort((a, b) => b.totalScore - a.totalScore);
+		
+		const html = allResults.map((item, index) => `
+			<div class="border-b border-gray-200 py-4 ${index === 0 ? 'bg-yellow-50 border-l-4 border-l-yellow-400' : ''}">
+				<div class="flex items-center justify-between">
+					<div class="flex-1">
+						<div class="flex items-center mb-2">
+							${index === 0 ? '<span class="text-yellow-600 text-lg mr-2">🏆</span>' : ''}
+							<h3 class="text-lg font-semibold ${index === 0 ? 'text-yellow-800' : 'text-gray-800'}">${item.title}</h3>
+						</div>
+						<p class="text-gray-600 text-sm mb-2">${item.description}</p>
+						<div class="flex items-center space-x-4 text-sm">
+							<span class="text-blue-600"><i class="fas fa-star mr-1"></i>${item.average.toFixed(1)} média</span>
+							<span class="text-green-600"><i class="fas fa-users mr-1"></i>${item.votes} votos</span>
+							<span class="text-purple-600"><i class="fas fa-trophy mr-1"></i>${item.totalScore} pontos</span>
 						</div>
 					</div>
-					<div class="text-sm text-gray-600 leading-relaxed">${item.description}</div>
 				</div>
-			`).join('')}
-		</div>
-	`;
-	const html = `
-		<div class="space-y-6">
-			${section('Ideias Viáveis - Resultados Completos', viableResults)}
-			${section('Ideias Disruptivas - Resultados Completos', disruptiveResults)}
-		</div>
-	`;
-	renderDetailedResults(html);
+			</div>
+		`).join('');
+		
+		console.log('✅ Resultados detalhados gerados com sucesso');
+		renderDetailedResults(html);
+	} catch (error) {
+		console.error('❌ Erro ao gerar resultados detalhados:', error);
+		renderDetailedResults('<p class="text-red-500 text-center p-8">Erro ao carregar resultados</p>');
+	}
 }
 
 async function copyResults() {

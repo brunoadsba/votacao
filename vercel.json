@@ -1,5 +1,6 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "name": "sistema-avaliacao-votacao",
   "builds": [
     {
@@ -8,6 +9,11 @@
     },
     {
       "src": "assets/**/*",
+=======
+  "builds": [
+    {
+      "src": "*.html",
+>>>>>>> melhoria
       "use": "@vercel/static"
     }
   ],
@@ -17,14 +23,18 @@
       "dest": "/deploy.html"
     },
     {
+<<<<<<< HEAD
       "src": "/deploy",
       "dest": "/deploy.html"
     },
     {
+=======
+>>>>>>> melhoria
       "src": "/admin",
       "dest": "/deploy.html?admin=true"
     },
     {
+<<<<<<< HEAD
       "src": "/realtime",
       "dest": "/realtime.html"
     },
@@ -33,12 +43,15 @@
       "dest": "/qrcodes_participantes.html"
     },
     {
+=======
+>>>>>>> melhoria
       "src": "/(.*)",
       "dest": "/$1"
     }
   ],
   "headers": [
     {
+<<<<<<< HEAD
       "source": "**/*.js",
       "headers": [
         {
@@ -49,6 +62,9 @@
     },
     {
       "source": "**/*.html",
+=======
+      "source": "/(.*)",
+>>>>>>> melhoria
       "headers": [
         {
           "key": "Cache-Control",

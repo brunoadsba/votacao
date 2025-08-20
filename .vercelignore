@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+
+# Node modules
+node_modules/
+package-lock.json
+
+# Development files
+dist/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp

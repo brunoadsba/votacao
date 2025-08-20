@@ -148,12 +148,15 @@ async function updateParticipantsStatus() {
 	try {
 		const { items, backend } = await getAllSubmissions([]);
 		console.log('📊 Dados recebidos:', { backend, count: Object.keys(items || {}).length });
+		console.log('📋 Dados brutos:', items);
 		
 		const submissions = items || {};
 		
 		if (Object.keys(submissions).length === 0) {
 			console.log('⚠️ Nenhum participante encontrado');
-			renderParticipantsStatus('<p class="text-gray-500 text-center p-4">Nenhum participante encontrado</p>');
+			const html = '<p class="text-gray-500 text-center p-4">Nenhum participante encontrado</p>';
+			console.log('📝 HTML para renderizar:', html);
+			renderParticipantsStatus(html);
 			return;
 		}
 		
@@ -183,10 +186,13 @@ async function updateParticipantsStatus() {
 		}).join('');
 		
 		console.log('✅ HTML dos participantes gerado:', html.length, 'caracteres');
+		console.log('📝 HTML para renderizar:', html);
 		renderParticipantsStatus(html);
 	} catch (error) {
 		console.error('❌ Erro ao buscar participantes:', error);
-		renderParticipantsStatus('<p class="text-red-500 text-center p-4">Erro ao carregar dados</p>');
+		const errorHtml = '<p class="text-red-500 text-center p-4">Erro ao carregar dados</p>';
+		console.log('📝 HTML de erro para renderizar:', errorHtml);
+		renderParticipantsStatus(errorHtml);
 	}
 }
 

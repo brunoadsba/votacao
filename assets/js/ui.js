@@ -70,17 +70,58 @@ export function showSubmissionSuccess(backendLabel) {
 }
 
 export function renderParticipantsStatus(html) {
-	document.getElementById('participants-status').innerHTML = html;
+	console.log('🎯 renderParticipantsStatus chamada com HTML:', html);
+	const element = document.getElementById('participants-status');
+	if (element) {
+		console.log('✅ Elemento participants-status encontrado, atualizando...');
+		element.innerHTML = html;
+		console.log('✅ HTML atualizado com sucesso');
+	} else {
+		console.error('❌ Elemento participants-status não encontrado!');
+	}
 }
 
 export function renderSummary({ topViableHtml, topDisruptiveHtml, championHtml }) {
-	document.getElementById('top-viable').innerHTML = topViableHtml;
-	document.getElementById('top-disruptive').innerHTML = topDisruptiveHtml;
-	if (championHtml) document.getElementById('overall-champion').innerHTML = championHtml;
+	console.log('🎯 renderSummary chamada com:', { topViableHtml, topDisruptiveHtml, championHtml });
+	
+	const topViableElement = document.getElementById('top-viable');
+	const topDisruptiveElement = document.getElementById('top-disruptive');
+	const championElement = document.getElementById('overall-champion');
+	
+	if (topViableElement) {
+		console.log('✅ Elemento top-viable encontrado, atualizando...');
+		topViableElement.innerHTML = topViableHtml;
+	} else {
+		console.error('❌ Elemento top-viable não encontrado!');
+	}
+	
+	if (topDisruptiveElement) {
+		console.log('✅ Elemento top-disruptive encontrado, atualizando...');
+		topDisruptiveElement.innerHTML = topDisruptiveHtml;
+	} else {
+		console.error('❌ Elemento top-disruptive não encontrado!');
+	}
+	
+	if (championElement && championHtml) {
+		console.log('✅ Elemento overall-champion encontrado, atualizando...');
+		championElement.innerHTML = championHtml;
+	} else if (championHtml) {
+		console.error('❌ Elemento overall-champion não encontrado!');
+	}
+	
+	console.log('✅ Resumo renderizado com sucesso');
 }
 
 export function renderDetailedResults(html) {
-	document.getElementById('detailed-results').innerHTML = html;
+	console.log('🎯 renderDetailedResults chamada com HTML:', html);
+	const element = document.getElementById('detailed-results');
+	if (element) {
+		console.log('✅ Elemento detailed-results encontrado, atualizando...');
+		element.innerHTML = html;
+		console.log('✅ Resultados detalhados atualizados com sucesso');
+	} else {
+		console.error('❌ Elemento detailed-results não encontrado!');
+	}
 }
 
 

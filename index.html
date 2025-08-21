@@ -20,6 +20,28 @@
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <header class="bg-white border-b shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="index.html#home" class="text-blue-600 flex items-center">
+                <i class="fas fa-home text-xl"></i>
+                <span class="hidden sm:inline ml-2">Tela inicial</span>
+            </a>
+            <nav class="flex items-center space-x-4 text-gray-600">
+                <a href="index.html#admin" class="hover:text-blue-600">
+                    <i class="fas fa-user-shield"></i>
+                    <span class="hidden sm:inline ml-1">Admin</span>
+                </a>
+                <a href="realtime.html" class="hover:text-blue-600">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="hidden sm:inline ml-1">Tempo real</span>
+                </a>
+                <a href="qrcodes_participantes.html" class="hover:text-blue-600">
+                    <i class="fas fa-qrcode"></i>
+                    <span class="hidden sm:inline ml-1">QR Codes</span>
+                </a>
+            </nav>
+        </div>
+    </header>
 
     <!-- Loading Screen -->
     <div id="loading" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
@@ -203,6 +225,10 @@
                         <button onclick="refreshData()" class="bg-yellow-600 px-4 py-2 rounded hover:bg-yellow-700 transition-colors">
                             <i class="fas fa-sync-alt mr-2"></i>Atualizar
                         </button>
+                        <label class="ml-2 inline-flex items-center text-xs bg-white text-gray-700 px-2 py-1 rounded border">
+                            <input type="checkbox" id="include-guests" class="mr-1">
+                            Incluir convidados
+                        </label>
                     </div>
                 </div>
             </div>
@@ -243,7 +269,7 @@
 
     <script>
         // Data Structure
-        const participants = {
+        let participants = {
             'H7K9M2': 'André Luiz Carvalho',
             'F3L8N1': 'Bruna Ferreira Machado',
             'R5T2P9': 'Caio Roberto Nogueira',
@@ -736,6 +762,24 @@
                     }
                 }
             });
+            const includeGuests = document.getElementById('include-guests') && document.getElementById('include-guests').checked;
+            if (includeGuests) {
+                Object.entries(rtdbData).forEach(([code, data]) => {
+                    if (data && data.guest && data.votes && !allVotes[code]) allVotes[code] = data.votes;
+                });
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('submission_')) {
+                        const code = key.replace('submission_', '');
+                        if (!allVotes[code]) {
+                            try {
+                                const parsed = JSON.parse(localStorage.getItem(key));
+                                if (parsed && parsed.guest && parsed.votes) allVotes[code] = parsed.votes;
+                            } catch (_) {}
+                        }
+                    }
+                }
+            }
             
             return allVotes;
         }
@@ -790,7 +834,10 @@
             
             resultsText += '\n📊 PARTICIPAÇÃO:\n';
             const submittedCount = Object.keys(allVotes).length;
-            resultsText += `${submittedCount}/${Object.keys(participants).length} participantes enviaram suas votações\n`;
+            const includeGuests = document.getElementById('include-guests') && document.getElementById('include-guests').checked;
+            const baseCount = Object.keys(participants).length;
+            const totalBase = includeGuests ? `${submittedCount} envios (incl. convidados)` : `${submittedCount}/${baseCount} participantes`;
+            resultsText += `${totalBase} enviaram suas votações\n`;
             
             navigator.clipboard.writeText(resultsText).then(() => {
                 alert('Resultados copiados para a área de transferência!');
@@ -812,6 +859,24 @@
                     }
                 }
             });
+            const includeGuests = document.getElementById('include-guests') && document.getElementById('include-guests').checked;
+            if (includeGuests) {
+                Object.entries(rtdbData).forEach(([code, data]) => {
+                    if (!allData[code] && data && data.guest) allData[code] = data;
+                });
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('submission_')) {
+                        const code = key.replace('submission_', '');
+                        if (!allData[code]) {
+                            try {
+                                const parsed = JSON.parse(localStorage.getItem(key));
+                                if (parsed && parsed.guest) allData[code] = parsed;
+                            } catch (_) {}
+                        }
+                    }
+                }
+            }
             
             const dataBlob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
@@ -825,7 +890,23 @@
         }
 
         // Initialize app when page loads
-        document.addEventListener('DOMContentLoaded', init);
+        function applyRoute() {
+            const h = (location.hash || '#home').replace('#', '');
+            if (h === 'admin') {
+                showAdminLogin();
+                return;
+            }
+            const welcome = document.getElementById('welcome-screen');
+            const admin = document.getElementById('admin-login');
+            if (welcome) welcome.classList.remove('hidden');
+            if (admin) admin.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            applyRoute();
+        });
+        window.addEventListener('hashchange', applyRoute);
     </script>
 </body>
 </html>

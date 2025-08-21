@@ -4,6 +4,7 @@ import { saveSubmission, getAllSubmissions, deleteSubmission, loadUserVotes, sav
 import { showWelcomeScreen, showAdminLogin, setParticipantHeader, renderIdeas as renderIdeasUI, updateStarDisplay, showSubmissionSuccess, renderParticipantsStatus, renderSummary, renderDetailedResults } from './ui.js?v=5';
 
 let currentUser = null;
+let isGuest = false;
 let userVotes = {};
 
 function createIdeaCard(idea) {
@@ -82,27 +83,40 @@ function attachDelegatedHandlers() {
 function init() {
 	setTimeout(() => {
 		document.getElementById('loading').classList.add('hidden');
-		
 		const urlParams = new URLSearchParams(window.location.search);
 		const admin = urlParams.get('admin');
+		const codigo = urlParams.get('codigo');
+		const guest = urlParams.get('guest');
 		
+		// Fluxo admin direto
 		if (admin === 'true') {
 			showAdminLogin();
 			attachDelegatedHandlers();
 			return;
 		}
+
+		// Fluxo com código pré-definido
+		if (codigo && participants[codigo]) {
+			currentUser = codigo;
+			userVotes = loadUserVotes(currentUser);
+			setParticipantHeader(participants[codigo]);
+			renderIdeas();
+			attachDelegatedHandlers();
+			return;
+		}
+
+		// Fluxo convidado
+		isGuest = guest === '1' || guest === 'true';
 		
-		// Show welcome screen by default
+		// Tela de boas-vindas por padrão
 		const welcomeScreen = document.getElementById('welcome-screen');
 		const loadingScreen = document.getElementById('loading');
-		
 		if (welcomeScreen && loadingScreen) {
 			loadingScreen.classList.add('hidden');
 			welcomeScreen.classList.remove('hidden');
 		} else {
 			console.error('Elemento welcome-screen não encontrado!');
 		}
-		
 		attachDelegatedHandlers();
 	}, 1000);
 }
@@ -118,7 +132,8 @@ async function submitVoting() {
 		votes: userVotes,
 		brainstorm: brainstormNotes,
 		date: meetingDate,
-		submittedAt: new Date().toISOString()
+		submittedAt: new Date().toISOString(),
+		guest: isGuest || !participants[currentUser]
 	};
 	
 	const result = await saveSubmission(currentUser, submissionData);

@@ -247,19 +247,11 @@
         </div>
     </div>
 
-    <!-- FIREBASE CONFIG - ESSENCIAL PARA RTDB -->
-    <script>
-        window.FIREBASE_CONFIG = {
-            apiKey: "AIzaSyCbH6vvO75BNUik6d-2xFmszXvXbC9zLbo",
-            authDomain: "hackathon-sesi.firebaseapp.com",
-            databaseURL: "https://hackathon-sesi-default-rtdb.firebaseio.com/",
-            projectId: "hackathon-sesi",
-            storageBucket: "hackathon-sesi.firebasestorage.app",
-            messagingSenderId: "124533455216",
-            appId: "1:124533455216:web:21397ca5efbfb95235f7b5"
-        };
-        console.log('✅ FIREBASE_CONFIG carregado:', !!window.FIREBASE_CONFIG);
+    <!-- FIREBASE CONFIG - Importado de firebase-config.js -->
+    <script type="module">
+        import { setupFirebaseConfig } from './assets/js/services/firebase-config.js';
+        setupFirebaseConfig();
     </script>
-            <script type="module" src="assets/js/app.js?v=13"></script>
+            <script type="module" src="assets/js/app.js?v=15"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import { viableIdeas, disruptiveIdeas } from './data/ideas.js?v=4';
+import { viableIdeas, disruptiveIdeas } from './data/ideas.js?v=5';
 
 function aggregateVotes(submissions) {
     const allVotes = {};
@@ -43,7 +43,7 @@ function renderMeta(countParticipants, lastUpdated) {
 }
 
 async function init() {
-    const { subscribeSubmissions } = await import('./services/persistence.js?v=4');
+    const { subscribeSubmissions } = await import('./services/persistence.js?v=5');
     const unsubscribe = await subscribeSubmissions((submissions) => {
         const codesWithData = Object.keys(submissions || {});
         const votesMap = aggregateVotes(submissions);

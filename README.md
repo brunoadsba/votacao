@@ -66,7 +66,7 @@ sistema-votacao/
 
 ### 2. Painel Administrativo
 - **URL**: `deploy.html` → "Acesso Administrativo"
-- **Senha**: `Br88080187`
+- **Senha**: `password` (hash SHA-256)
 - **Funcionalidade**: Visualização de resultados, exportação, gestão de usuários
 
 ### 3. Dashboard em Tempo Real
@@ -85,15 +85,12 @@ sistema-votacao/
 git clone https://github.com/brunoadsba/sistema-votacao.git
 cd sistema-votacao
 
-# 2. Instale dependências (opcional)
-npm install
-
-# 3. Inicie servidor local
+# 2. Inicie servidor local (sem dependências necessárias)
 python3 -m http.server 5500
 # ou
 npx http-server -p 5500 -c-1
 
-# 4. Acesse no navegador
+# 3. Acesse no navegador
 # http://localhost:5500/deploy.html
 ```
 
@@ -104,10 +101,10 @@ npx http-server -p 5500 -c-1
 
 ## 🔧 Configuração Firebase
 
-O projeto usa Firebase para persistência em tempo real. Configure as variáveis em `assets/js/services/firebase.js`:
+O projeto usa Firebase para persistência em tempo real. Configure as variáveis em `assets/js/services/firebase-config.js`:
 
 ```javascript
-window.FIREBASE_CONFIG = {
+export const FIREBASE_CONFIG = {
     apiKey: "sua-api-key",
     authDomain: "seu-projeto.firebaseapp.com",
     databaseURL: "https://seu-projeto-default-rtdb.firebaseio.com/",

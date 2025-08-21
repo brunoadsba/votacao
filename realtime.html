@@ -56,19 +56,12 @@
         </div>
     </main>
 
-    <!-- FIREBASE CONFIG reaproveita a mesma do deploy.html -->
-    <script>
-        window.FIREBASE_CONFIG = {
-            apiKey: "AIzaSyCbH6vvO75BNUik6d-2xFmszXvXbC9zLbo",
-            authDomain: "hackathon-sesi.firebaseapp.com",
-            databaseURL: "https://hackathon-sesi-default-rtdb.firebaseio.com/",
-            projectId: "hackathon-sesi",
-            storageBucket: "hackathon-sesi.firebasestorage.app",
-            messagingSenderId: "124533455216",
-            appId: "1:124533455216:web:21397ca5efbfb95235f7b5"
-        };
+    <!-- FIREBASE CONFIG - Importado de firebase-config.js -->
+    <script type="module">
+        import { setupFirebaseConfig } from './assets/js/services/firebase-config.js';
+        setupFirebaseConfig();
     </script>
-    <script type="module" src="assets/js/realtime-dashboard.js?v=4"></script>
+    <script type="module" src="assets/js/realtime-dashboard.js?v=5"></script>
 </body>
 </html>
 

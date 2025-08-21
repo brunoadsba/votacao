@@ -1,7 +1,7 @@
-import { participants } from './data/participants.js?v=4';
-import { viableIdeas, disruptiveIdeas } from './data/ideas.js?v=4';
-import { saveSubmission, getAllSubmissions, deleteSubmission, loadUserVotes, saveUserVotes } from './services/persistence.js?v=4';
-import { showWelcomeScreen, showAdminLogin, setParticipantHeader, renderIdeas as renderIdeasUI, updateStarDisplay, showSubmissionSuccess, renderParticipantsStatus, renderSummary, renderDetailedResults } from './ui.js?v=5';
+import { participants } from './data/participants.js?v=5';
+import { viableIdeas, disruptiveIdeas } from './data/ideas.js?v=5';
+import { saveSubmission, getAllSubmissions, deleteSubmission, loadUserVotes, saveUserVotes } from './services/persistence.js?v=5';
+import { showWelcomeScreen, showAdminLogin, setParticipantHeader, renderIdeas as renderIdeasUI, updateStarDisplay, showSubmissionSuccess, renderParticipantsStatus, renderSummary, renderDetailedResults } from './ui.js?v=6';
 
 let currentUser = null;
 let isGuest = false;
@@ -286,7 +286,16 @@ async function copyResults() {
 
 async function checkAdminPassword() {
 	const password = document.getElementById('admin-password').value;
-	if (password === 'Br88080187') {
+	console.log('🔐 Tentativa de login admin...');
+	
+	// Hash simples da senha para não expor em texto plano
+	// Em produção, usar Firebase Auth ou sistema de autenticação adequado
+	const hashedPassword = await hashPassword(password);
+	const expectedHash = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // hash de 'password'
+	
+	if (hashedPassword === expectedHash) {
+		console.log('✅ Senha correta! Exibindo dashboard...');
+		
 		// Esconder TODAS as outras telas
 		const welcomeScreen = document.getElementById('welcome-screen');
 		const adminLogin = document.getElementById('admin-login');
@@ -297,11 +306,30 @@ async function checkAdminPassword() {
 		if (participantInterface) participantInterface.classList.add('hidden');
 		
 		// Mostrar apenas o dashboard admin
-		document.getElementById('admin-dashboard').classList.remove('hidden');
-		refreshData();
+		const adminDashboard = document.getElementById('admin-dashboard');
+		if (adminDashboard) {
+			adminDashboard.classList.remove('hidden');
+			console.log('🎯 Dashboard admin exibido com sucesso!');
+		} else {
+			console.error('❌ Elemento admin-dashboard não encontrado!');
+		}
+		
+		await refreshData();
 		return;
 	}
+	
+	console.log('❌ Senha incorreta!');
 	document.getElementById('login-error').classList.remove('hidden');
+}
+
+// Função para hash da senha (SHA-256)
+async function hashPassword(password) {
+	const encoder = new TextEncoder();
+	const data = encoder.encode(password);
+	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+	const hashArray = Array.from(new Uint8Array(hashBuffer));
+	const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+	return hashHex;
 }
 
 async function resetParticipant(participantCode) {

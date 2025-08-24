@@ -83,7 +83,7 @@ export const FIREBASE_CONFIG = {
 
 ### Administrador
 1. Acesse "Acesso Administrativo"
-2. Senha: `password`
+2. Digite a senha configurada
 3. Visualize resultados e gerencie participantes
 
 ## Características Técnicas

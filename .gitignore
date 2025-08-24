@@ -7,3 +7,5 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+RPA_DEMO_README.md
+assets/js/data/sbgames-demo.js

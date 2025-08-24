@@ -1,88 +1,23 @@
 import { participants } from './data/participants.js?v=5';
 import { viableIdeas, disruptiveIdeas } from './data/ideas.js?v=5';
-import { saveSubmission, getAllSubmissions, deleteSubmission, loadUserVotes, saveUserVotes } from './services/persistence.js?v=5';
+import { saveSubmission, getAllSubmissions, loadUserVotes, saveUserVotes, deleteSubmission } from './services/persistence.js?v=5';
 import { showWelcomeScreen, showAdminLogin, setParticipantHeader, renderIdeas as renderIdeasUI, updateStarDisplay, showSubmissionSuccess, renderParticipantsStatus, renderSummary, renderDetailedResults } from './ui.js?v=6';
-
-let currentUser = null;
-let isGuest = false;
-let userVotes = {};
-
-function createIdeaCard(idea) {
-	const currentRating = userVotes[idea.id] || 0;
-	return `
-		<div class="idea-card bg-white p-6 rounded-lg shadow-sm">
-			<div class="flex justify-between items-start mb-4">
-				<h3 class="text-lg font-semibold text-gray-800 flex-1">${idea.title}</h3>
-				<div class="ml-4">
-					<button data-action="reset" data-ideaid="${idea.id}" class="text-gray-400 hover:text-red-500 text-sm">
-						<i class="fas fa-undo"></i> Zerar
-					</button>
-				</div>
-			</div>
-			<p class="text-gray-600 mb-4">${idea.description}</p>
-			<div class="flex items-center justify-between">
-				<div class="star-rating" data-idea="${idea.id}">
-					${Array.from({ length: 10 }, (_, i) =>
-						`<i class="fas fa-star star ${i < currentRating ? 'active' : ''}" data-rating="${i + 1}" data-ideaid="${idea.id}" data-action="rate"></i>`
-					).join('')}
-				</div>
-				<span class="text-sm font-medium text-gray-700">${currentRating}/10</span>
-			</div>
-		</div>
-	`;
-}
+import { createIdeaCard } from './components/IdeaCard.js';
+import { aggregateVotesFromSubmissions, calculateResults, generateResultsText } from './utils/calculations.js';
+import { appState } from './state/appState.js';
+import { attachDelegatedHandlers } from './events/eventHandlers.js';
+import { APP_CONFIG, LOG_MESSAGES, CSS_CLASSES, DOM_ELEMENTS } from './config/constants.js';
 
 function renderIdeas() {
-	const viableHtml = viableIdeas.map(createIdeaCard).join('');
-	const disruptiveHtml = disruptiveIdeas.map(createIdeaCard).join('');
+	const userVotes = appState.getUserVotes();
+	const viableHtml = viableIdeas.map(idea => createIdeaCard(idea, userVotes[idea.id] || 0)).join('');
+	const disruptiveHtml = disruptiveIdeas.map(idea => createIdeaCard(idea, userVotes[idea.id] || 0)).join('');
 	renderIdeasUI({ viable: viableHtml, disruptive: disruptiveHtml });
-}
-
-function attachDelegatedHandlers() {
-	// Delegação de eventos para estrelas e reset
-	document.body.addEventListener('click', async (e) => {
-		const target = e.target.closest('[data-action]');
-		if (!target) return;
-		const action = target.getAttribute('data-action');
-		const ideaId = target.getAttribute('data-ideaid');
-		if (!ideaId) return;
-		if (action === 'rate') {
-			const rating = Number(target.getAttribute('data-rating'));
-			userVotes[ideaId] = rating;
-			saveUserVotes(currentUser, userVotes);
-			updateStarDisplay(ideaId, rating);
-		}
-		if (action === 'reset') {
-			userVotes[ideaId] = 0;
-			saveUserVotes(currentUser, userVotes);
-			updateStarDisplay(ideaId, 0);
-		}
-	});
-
-	// Botões específicos
-	const submitBtn = document.querySelector('button[onclick="submitVoting()"]');
-	if (submitBtn) submitBtn.onclick = submitVoting;
-	const exportBtn = document.querySelector('button[onclick="exportToPDF()"]');
-	if (exportBtn) exportBtn.onclick = () => window.print();
-	const copyBtn = document.querySelector('button[onclick="copyResults()"]');
-	if (copyBtn) copyBtn.onclick = copyResults;
-	const refreshBtn = document.querySelector('button[onclick="refreshData()"]');
-	if (refreshBtn) refreshBtn.onclick = refreshData;
-	const loginBtn = document.querySelector('#admin-login button');
-	if (loginBtn) loginBtn.onclick = checkAdminPassword;
-
-	// Reset por participante no admin (delegado)
-	document.body.addEventListener('click', async (e) => {
-		const btn = e.target.closest('button[data-reset-participant]');
-		if (!btn) return;
-		const code = btn.getAttribute('data-reset-participant');
-		await resetParticipant(code);
-	});
 }
 
 function init() {
 	setTimeout(() => {
-		document.getElementById('loading').classList.add('hidden');
+		document.getElementById(DOM_ELEMENTS.LOADING).classList.add(CSS_CLASSES.HIDDEN);
 		const urlParams = new URLSearchParams(window.location.search);
 		const admin = urlParams.get('admin');
 		const codigo = urlParams.get('codigo');
@@ -97,8 +32,9 @@ function init() {
 
 		// Fluxo com código pré-definido
 		if (codigo && participants[codigo]) {
-			currentUser = codigo;
-			userVotes = loadUserVotes(currentUser);
+			appState.setCurrentUser(codigo);
+			const votes = loadUserVotes(codigo);
+			appState.setUserVotes(votes);
 			setParticipantHeader(participants[codigo]);
 			renderIdeas();
 			attachDelegatedHandlers();
@@ -106,60 +42,61 @@ function init() {
 		}
 
 		// Fluxo convidado
-		isGuest = guest === '1' || guest === 'true';
+		const isGuest = guest === '1' || guest === 'true';
+		appState.setGuestStatus(isGuest);
 		
 		// Tela de boas-vindas por padrão
-		const welcomeScreen = document.getElementById('welcome-screen');
-		const loadingScreen = document.getElementById('loading');
+		const welcomeScreen = document.getElementById(DOM_ELEMENTS.WELCOME_SCREEN);
+		const loadingScreen = document.getElementById(DOM_ELEMENTS.LOADING);
 		if (welcomeScreen && loadingScreen) {
-			loadingScreen.classList.add('hidden');
-			welcomeScreen.classList.remove('hidden');
+			loadingScreen.classList.add(CSS_CLASSES.HIDDEN);
+			welcomeScreen.classList.remove(CSS_CLASSES.HIDDEN);
 		} else {
 			console.error('Elemento welcome-screen não encontrado!');
 		}
 		attachDelegatedHandlers();
-	}, 1000);
+	}, APP_CONFIG.LOADING_DELAY);
 }
 
 async function submitVoting() {
-	const brainstormNotes = document.getElementById('brainstorm-notes').value;
-	const meetingDate = document.getElementById('meeting-date').value;
-	const participantName = document.getElementById('participant-name').value;
+	const brainstormNotes = document.getElementById(DOM_ELEMENTS.BRAINSTORM_NOTES).value;
+	const meetingDate = document.getElementById(DOM_ELEMENTS.MEETING_DATE).value;
+	const participantName = document.getElementById(DOM_ELEMENTS.PARTICIPANT_NAME).value;
 	
 	const submissionData = {
 		participant: participantName,
-		code: currentUser,
-		votes: userVotes,
+		code: appState.getCurrentUser(),
+		votes: appState.getUserVotes(),
 		brainstorm: brainstormNotes,
 		date: meetingDate,
 		submittedAt: new Date().toISOString(),
-		guest: isGuest || !participants[currentUser]
+		guest: appState.getGuestStatus() || !participants[appState.getCurrentUser()]
 	};
 	
-	const result = await saveSubmission(currentUser, submissionData);
+	const result = await saveSubmission(appState.getCurrentUser(), submissionData);
 	showSubmissionSuccess(result && result.backend ? result.backend : 'localStorage');
 }
 
 async function refreshData() {
-	console.log('🔄 Iniciando refreshData...');
+	console.log(LOG_MESSAGES.REFRESH_START);
 	try {
 		await updateParticipantsStatus();
-		console.log('✅ Status dos participantes atualizado');
+		console.log(LOG_MESSAGES.PARTICIPANTS_SUCCESS);
 		
 		await updateResultsSummary();
-		console.log('✅ Resumo dos resultados atualizado');
+		console.log(LOG_MESSAGES.RESULTS_SUCCESS);
 		
 		await updateDetailedResultsView();
-		console.log('✅ Resultados detalhados atualizados');
+		console.log(LOG_MESSAGES.DETAILED_SUCCESS);
 		
-		console.log('🎉 Dashboard atualizado com sucesso!');
+		console.log(LOG_MESSAGES.REFRESH_SUCCESS);
 	} catch (error) {
-		console.error('❌ Erro ao atualizar dashboard:', error);
+		console.error(LOG_MESSAGES.REFRESH_ERROR, error);
 	}
 }
 
 async function updateParticipantsStatus() {
-	console.log('🔄 Buscando dados dos participantes...');
+	console.log(LOG_MESSAGES.PARTICIPANTS_UPDATE);
 	try {
 		const { items, backend } = await getAllSubmissions([]);
 		console.log('📊 Dados recebidos:', { backend, count: Object.keys(items || {}).length });
@@ -204,42 +141,15 @@ async function updateParticipantsStatus() {
 		console.log('📝 HTML para renderizar:', html);
 		renderParticipantsStatus(html);
 	} catch (error) {
-		console.error('❌ Erro ao buscar participantes:', error);
+		console.error(LOG_MESSAGES.PARTICIPANTS_ERROR, error);
 		const errorHtml = '<p class="text-red-500 text-center p-4">Erro ao carregar dados</p>';
 		console.log('📝 HTML de erro para renderizar:', errorHtml);
 		renderParticipantsStatus(errorHtml);
 	}
 }
 
-function aggregateVotesFromSubmissions(submissions) {
-	const allVotes = {};
-	Object.entries(submissions).forEach(([code, data]) => {
-		if (data && data.votes) allVotes[code] = data.votes;
-	});
-	return allVotes;
-}
-
-function calculateResults(ideas, allVotes) {
-	return ideas.map(idea => {
-		let totalScore = 0;
-		let voteCount = 0;
-		Object.values(allVotes).forEach(votes => {
-			if (votes[idea.id]) {
-				totalScore += votes[idea.id];
-				voteCount++;
-			}
-		});
-		return {
-			...idea,
-			totalScore,
-			votes: voteCount,
-			average: voteCount > 0 ? totalScore / voteCount : 0
-		};
-	}).sort((a, b) => b.totalScore - a.totalScore);
-}
-
 async function updateResultsSummary() {
-	console.log('🔄 Atualizando resumo dos resultados...');
+	console.log(LOG_MESSAGES.RESULTS_UPDATE);
 	try {
 		const { items, backend } = await getAllSubmissions([]);
 		console.log('📊 Dados para resumo:', { backend, count: Object.keys(items || {}).length });
@@ -248,7 +158,7 @@ async function updateResultsSummary() {
 		const viableResults = calculateResults(viableIdeas, allVotes);
 		const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
 		
-		const topViable = viableResults.slice(0, 3).map((item, index) => `
+		const topViable = viableResults.slice(0, APP_CONFIG.TOP_RESULTS_COUNT).map((item, index) => `
 			<div class="flex items-start p-2 bg-yellow-50 rounded min-h-[50px]">
 				<span class="font-bold text-yellow-600 mr-2 flex-shrink-0">${index + 1}º</span>
 				<span class="flex-1 text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
@@ -256,7 +166,7 @@ async function updateResultsSummary() {
 			</div>
 		`).join('');
 		
-		const topDisruptive = disruptiveResults.slice(0, 3).map((item, index) => `
+		const topDisruptive = disruptiveResults.slice(0, APP_CONFIG.TOP_RESULTS_COUNT).map((item, index) => `
 			<div class="flex items-start p-2 bg-purple-50 rounded min-h-[50px]">
 				<span class="font-bold text-purple-600 mr-2 flex-shrink-0">${index + 1}º</span>
 				<span class="flex-1 text-sm leading-relaxed break-words overflow-hidden" style="text-wrap: balance;">${item.title}</span>
@@ -276,7 +186,7 @@ async function updateResultsSummary() {
 		console.log('✅ Resumo gerado com sucesso');
 		renderSummary({ topViableHtml: topViable, topDisruptiveHtml: topDisruptive, championHtml });
 	} catch (error) {
-		console.error('❌ Erro ao gerar resumo:', error);
+		console.error(LOG_MESSAGES.RESULTS_ERROR, error);
 		renderSummary({ 
 			topViableHtml: '<p class="text-red-500">Erro ao carregar</p>', 
 			topDisruptiveHtml: '<p class="text-red-500">Erro ao carregar</p>', 
@@ -286,7 +196,7 @@ async function updateResultsSummary() {
 }
 
 async function updateDetailedResultsView() {
-	console.log('🔄 Atualizando resultados detalhados...');
+	console.log(LOG_MESSAGES.DETAILED_UPDATE);
 	try {
 		const { items, backend } = await getAllSubmissions([]);
 		console.log('📊 Dados para detalhes:', { backend, count: Object.keys(items || {}).length });
@@ -325,7 +235,7 @@ async function updateDetailedResultsView() {
 		console.log('✅ Resultados detalhados gerados com sucesso');
 		renderDetailedResults(html);
 	} catch (error) {
-		console.error('❌ Erro ao gerar resultados detalhados:', error);
+		console.error(LOG_MESSAGES.DETAILED_ERROR, error);
 		renderDetailedResults('<p class="text-red-500 text-center p-8">Erro ao carregar resultados</p>');
 	}
 }
@@ -336,55 +246,46 @@ async function copyResults() {
 	const viableResults = calculateResults(viableIdeas, allVotes);
 	const disruptiveResults = calculateResults(disruptiveIdeas, allVotes);
 	const allResults = [...viableResults, ...disruptiveResults].sort((a, b) => b.totalScore - a.totalScore);
-	let resultsText = '=== RESULTADOS CONSOLIDADOS - SISTEMA DE AVALIAÇÃO E VOTAÇÃO ===\n\n';
-	resultsText += '🏆 CAMPEÃO GERAL:\n';
-	if (allResults[0]) resultsText += `${allResults[0].title} - ${allResults[0].totalScore} pontos\n\n`;
-	resultsText += '🔥 TOP 3 IDEIAS VIÁVEIS:\n';
-	viableResults.slice(0, 3).forEach((item, index) => { resultsText += `${index + 1}º - ${item.title} (${item.totalScore} pts)\n`; });
-	resultsText += '\n🚀 TOP 3 IDEIAS DISRUPTIVAS:\n';
-	disruptiveResults.slice(0, 3).forEach((item, index) => { resultsText += `${index + 1}º - ${item.title} (${item.totalScore} pts)\n`; });
-	resultsText += '\n📊 PARTICIPAÇÃO:\n';
-	const submittedCount = Object.keys(items).length;
-	resultsText += `${submittedCount} participantes enviaram suas votações\n`;
+	
+	const resultsText = generateResultsText(viableResults, disruptiveResults, allResults, items);
 	navigator.clipboard.writeText(resultsText).then(() => alert('Resultados copiados para a área de transferência!'));
 }
 
 async function checkAdminPassword() {
-	const password = document.getElementById('admin-password').value;
-	console.log('🔐 Tentativa de login admin...');
+	const password = document.getElementById(DOM_ELEMENTS.ADMIN_PASSWORD).value;
+	console.log(LOG_MESSAGES.ADMIN_LOGIN_ATTEMPT);
 	
 	// Hash simples da senha para não expor em texto plano
 	// Em produção, usar Firebase Auth ou sistema de autenticação adequado
 	const hashedPassword = await hashPassword(password);
-	const expectedHash = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // hash de 'password'
 	
-	if (hashedPassword === expectedHash) {
-		console.log('✅ Senha correta! Exibindo dashboard...');
+	if (hashedPassword === APP_CONFIG.ADMIN_PASSWORD_HASH) {
+		console.log(LOG_MESSAGES.ADMIN_LOGIN_SUCCESS);
 		
 		// Esconder TODAS as outras telas
-		const welcomeScreen = document.getElementById('welcome-screen');
-		const adminLogin = document.getElementById('admin-login');
-		const participantInterface = document.getElementById('participant-interface');
+		const welcomeScreen = document.getElementById(DOM_ELEMENTS.WELCOME_SCREEN);
+		const adminLogin = document.getElementById(DOM_ELEMENTS.ADMIN_LOGIN);
+		const participantInterface = document.getElementById(DOM_ELEMENTS.PARTICIPANT_INTERFACE);
 		
-		if (welcomeScreen) welcomeScreen.classList.add('hidden');
-		if (adminLogin) adminLogin.classList.add('hidden');
-		if (participantInterface) participantInterface.classList.add('hidden');
+		if (welcomeScreen) welcomeScreen.classList.add(CSS_CLASSES.HIDDEN);
+		if (adminLogin) adminLogin.classList.add(CSS_CLASSES.HIDDEN);
+		if (participantInterface) participantInterface.classList.add(CSS_CLASSES.HIDDEN);
 		
 		// Mostrar apenas o dashboard admin
-		const adminDashboard = document.getElementById('admin-dashboard');
+		const adminDashboard = document.getElementById(DOM_ELEMENTS.ADMIN_DASHBOARD);
 		if (adminDashboard) {
-			adminDashboard.classList.remove('hidden');
-			console.log('🎯 Dashboard admin exibido com sucesso!');
+			adminDashboard.classList.remove(CSS_CLASSES.HIDDEN);
+			console.log(LOG_MESSAGES.ADMIN_DASHBOARD_SUCCESS);
 		} else {
-			console.error('❌ Elemento admin-dashboard não encontrado!');
+			console.error(LOG_MESSAGES.ADMIN_DASHBOARD_ERROR);
 		}
 		
 		await refreshData();
 		return;
 	}
 	
-	console.log('❌ Senha incorreta!');
-	document.getElementById('login-error').classList.remove('hidden');
+	console.log(LOG_MESSAGES.ADMIN_LOGIN_ERROR);
+	document.getElementById(DOM_ELEMENTS.LOGIN_ERROR).classList.remove(CSS_CLASSES.HIDDEN);
 }
 
 // Função para hash da senha (SHA-256)
@@ -407,8 +308,8 @@ async function resetParticipant(participantCode) {
 
 // Funções para a nova interface de boas-vindas
 function startVoting() {
-	const participantName = document.getElementById('participant-name-input').value.trim();
-	const workshopDate = document.getElementById('workshop-date').value;
+	const participantName = document.getElementById(DOM_ELEMENTS.PARTICIPANT_NAME_INPUT).value.trim();
+	const workshopDate = document.getElementById(DOM_ELEMENTS.WORKSHOP_DATE).value;
 	
 	if (!participantName) {
 		alert('Por favor, insira seu nome completo.');
@@ -421,29 +322,31 @@ function startVoting() {
 	}
 	
 	// Criar um código único para o participante
-	currentUser = 'user_' + Date.now();
-	
-	// Salvar dados do participante
-	userVotes = {};
+	const userCode = 'user_' + Date.now();
+	appState.setCurrentUser(userCode);
+	appState.setUserVotes({});
 	
 	// Configurar interface - esconder TODAS as outras telas
-	const welcomeScreen = document.getElementById('welcome-screen');
-	const adminLogin = document.getElementById('admin-login');
-	const adminDashboard = document.getElementById('admin-dashboard');
+	const welcomeScreen = document.getElementById(DOM_ELEMENTS.WELCOME_SCREEN);
+	const adminLogin = document.getElementById(DOM_ELEMENTS.ADMIN_LOGIN);
+	const adminDashboard = document.getElementById(DOM_ELEMENTS.ADMIN_DASHBOARD);
 	
-	if (welcomeScreen) welcomeScreen.classList.add('hidden');
-	if (adminLogin) adminLogin.classList.add('hidden');
-	if (adminDashboard) adminDashboard.classList.add('hidden');
+	if (welcomeScreen) welcomeScreen.classList.add(CSS_CLASSES.HIDDEN);
+	if (adminLogin) adminLogin.classList.add(CSS_CLASSES.HIDDEN);
+	if (adminDashboard) adminDashboard.classList.add(CSS_CLASSES.HIDDEN);
 	
 	// Mostrar apenas a interface de participante
-	document.getElementById('participant-interface').classList.remove('hidden');
+	document.getElementById(DOM_ELEMENTS.PARTICIPANT_INTERFACE).classList.remove(CSS_CLASSES.HIDDEN);
 	
 	// Preencher dados
-	document.getElementById('participant-name').value = participantName;
-	document.getElementById('meeting-date').value = workshopDate;
+	document.getElementById(DOM_ELEMENTS.PARTICIPANT_NAME).value = participantName;
+	document.getElementById(DOM_ELEMENTS.MEETING_DATE).value = workshopDate;
 	
 	// Renderizar ideias
 	renderIdeas();
+	
+	// Anexar event handlers após renderizar as ideias
+	attachDelegatedHandlers();
 }
 
 // Função para exportar PDF (simples - usa print do navegador)
@@ -459,6 +362,16 @@ window.submitVoting = submitVoting;
 window.exportToPDF = exportToPDF;
 window.copyResults = copyResults;
 window.refreshData = refreshData;
+window.resetParticipant = resetParticipant;
+
+// Função de debug para testar o sistema de estrelas
+window.debugStars = function() {
+	console.log('🔍 Debug do sistema de estrelas:');
+	console.log('📊 Estado atual:', appState);
+	console.log('🎯 Estrelas encontradas:', document.querySelectorAll('.star').length);
+	console.log('🎯 Containers de ideias:', document.querySelectorAll('[data-idea]').length);
+	console.log('🎯 Event handlers anexados:', true);
+};
 
 // Função showAdminLogin removida - já está sendo importada do ui.js
 

@@ -3,13 +3,6 @@
   "version": "1.0.0",
   "description": "Sistema de votação",
   "main": "deploy.html",
-  "scripts": {
-    "start": "vercel dev",
-    "build": "echo 'Build completed'",
-    "deploy": "vercel --prod"
-  },
-  "dependencies": {},
-  "devDependencies": {},
   "keywords": ["votacao", "firebase"],
   "author": "brunoadsba",
   "license": "MIT"

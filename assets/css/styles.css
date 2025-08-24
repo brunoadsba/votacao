@@ -1,16 +1,24 @@
 .star-rating {
 	display: inline-flex;
 	gap: 2px;
+	align-items: center;
 }
 .star {
 	color: #d1d5db;
 	cursor: pointer;
-	transition: color 0.2s;
+	transition: color 0.2s ease;
+	font-size: 1.2rem;
+	padding: 2px;
+	border-radius: 2px;
+}
+.star:hover {
+	color: #f59e0b;
+	transform: scale(1.1);
 }
 .star.active {
 	color: #fbbf24;
 }
-.star:hover {
+.star[data-action="rate"]:hover {
 	color: #f59e0b;
 }
 @media print {

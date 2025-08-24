@@ -43,12 +43,35 @@ export function renderIdeas(cardsHtml) {
 }
 
 export function updateStarDisplay(ideaId, rating) {
-	const stars = document.querySelectorAll(`[data-idea="${ideaId}"] .star`);
+	console.log(`🔄 Atualizando estrelas para ideia ${ideaId} com rating ${rating}`);
+	
+	// Buscar todas as estrelas da ideia específica
+	const starContainer = document.querySelector(`[data-idea="${ideaId}"]`);
+	if (!starContainer) {
+		console.error(`❌ Container de estrelas não encontrado para ideia ${ideaId}`);
+		return;
+	}
+	
+	const stars = starContainer.querySelectorAll('.star');
+	console.log(`✅ Encontradas ${stars.length} estrelas para ideia ${ideaId}`);
+	
+	// Atualizar cada estrela
 	stars.forEach((star, index) => {
-		star.classList.toggle('active', index < rating);
+		const shouldBeActive = index < rating;
+		star.classList.toggle('active', shouldBeActive);
+		console.log(`⭐ Estrela ${index + 1}: ${shouldBeActive ? 'ativa' : 'inativa'}`);
 	});
-	const ratingSpan = document.querySelector(`[data-idea="${ideaId}"]`).parentElement.querySelector('span');
-	ratingSpan.textContent = `${rating}/10`;
+	
+	// Atualizar o texto do rating usando seletor mais específico
+	const ratingSpan = starContainer.closest('.idea-card').querySelector('.rating-display');
+	if (ratingSpan) {
+		ratingSpan.textContent = `${rating}/10`;
+		console.log(`📝 Rating atualizado para ${rating}/10`);
+	} else {
+		console.error(`❌ Span de rating não encontrado para ideia ${ideaId}`);
+	}
+	
+	console.log(`✅ Estrelas atualizadas com sucesso para ideia ${ideaId}`);
 }
 
 export function showSubmissionSuccess(backendLabel) {

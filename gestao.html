@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão - Sistema de Avaliação e Votação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .feature-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            animation: progress 2s ease-in-out infinite;
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 20px rgba(79, 172, 254, 0.4); }
+            to { box-shadow: 0 0 30px rgba(79, 172, 254, 0.8); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+            <!-- Lado esquerdo: Tela inicial -->
+            <a href="deploy.html#home" class="text-blue-600 flex items-center">
+                <i class="fas fa-home text-xl"></i>
+                <span class="hidden sm:inline ml-2">Tela inicial</span>
+            </a>
+            
+            <!-- Centro: Tempo Real e QR Code -->
+            <nav class="flex items-center space-x-4 sm:space-x-6 text-blue-600">
+                <a href="realtime.html" class="hover:text-blue-800 transition-colors">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="hidden sm:inline ml-1">Tempo Real</span>
+                </a>
+                <a href="qrcodes_participantes.html" class="hover:text-blue-800 transition-colors">
+                    <i class="fas fa-qrcode"></i>
+                    <span class="hidden sm:inline ml-1">QR Code</span>
+                </a>
+            </nav>
+            
+            <!-- Lado direito: Admin e Gestão -->
+            <div class="flex items-center space-x-4">
+                <a href="deploy.html#admin" class="text-blue-600 hover:text-blue-800 transition-colors">
+                    <i class="fas fa-user-shield"></i>
+                    <span class="hidden sm:inline ml-1">Admin</span>
+                </a>
+                <a href="gestao.html" class="text-blue-600 hover:text-blue-800 transition-colors font-semibold">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="hidden sm:inline ml-1">Gestão</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="bg-white border-b px-4 py-3">
+        <div class="max-w-7xl mx-auto">
+            <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                <li><a href="deploy.html#home" class="hover:text-blue-600 transition-colors">Início</a></li>
+                <li><i class="fas fa-chevron-right text-gray-400"></i></li>
+                <li><a href="deploy.html#admin" class="hover:text-blue-600 transition-colors">Admin</a></li>
+                <li><i class="fas fa-chevron-right text-gray-400"></i></li>
+                <li class="text-blue-600 font-medium">Gestão</li>
+            </ol>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-16 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="floating mb-8">
+                <i class="fas fa-rocket text-6xl text-yellow-300"></i>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                O Futuro da <span class="text-yellow-300">Gestão</span> de Workshops
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90 max-w-3xl mx-auto">
+                Transforme dados em insights estratégicos com nossa plataforma avançada de análise e relatórios
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    <span class="font-semibold">Análise Avançada</span>
+                </div>
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3">
+                    <i class="fas fa-file-pdf mr-2"></i>
+                    <span class="font-semibold">Relatórios Profissionais</span>
+                </div>
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3">
+                    <i class="fas fa-tachometer-alt mr-2"></i>
+                    <span class="font-semibold">KPIs em Tempo Real</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    Funcionalidades de <span class="text-blue-600">Gestão</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Descubra como nossa plataforma revoluciona a gestão de workshops e eventos corporativos
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Gráficos Interativos -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
+                    <div class="text-center mb-6">
+                        <div class="feature-icon inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full text-white text-3xl mb-4">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Gráficos Interativos</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-chart-bar text-blue-500"></i>
+                            <span class="text-gray-700">Ranking de ideias por pontuação</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-chart-pie text-green-500"></i>
+                            <span class="text-gray-700">Distribuição de votos por faixa</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-chart-area text-purple-500"></i>
+                            <span class="text-gray-700">Evolução temporal da participação</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-th text-orange-500"></i>
+                            <span class="text-gray-700">Heatmaps de padrões de votação</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-blue-700 font-medium">Implementação</span>
+                            <span class="text-blue-600 font-bold">Fase 1</span>
+                        </div>
+                        <div class="w-full bg-blue-200 rounded-full h-2 mt-2">
+                            <div class="progress-bar h-2 rounded-full" style="width: 25%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Relatórios Profissionais -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
+                    <div class="text-center mb-6">
+                        <div class="feature-icon inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-teal-600 rounded-full text-white text-3xl mb-4">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Relatórios Profissionais</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-file-pdf text-red-500"></i>
+                            <span class="text-gray-700">Relatórios executivos em PDF</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-file-excel text-green-600"></i>
+                            <span class="text-gray-700">Dados em Excel para análise</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-file-csv text-blue-500"></i>
+                            <span class="text-gray-700">Exportação CSV para BI</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-palette text-purple-500"></i>
+                            <span class="text-gray-700">Templates personalizáveis</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-green-700 font-medium">Implementação</span>
+                            <span class="text-green-600 font-bold">Fase 2</span>
+                        </div>
+                        <div class="w-full bg-green-200 rounded-full h-2 mt-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Executivo -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
+                    <div class="text-center mb-6">
+                        <div class="feature-icon inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full text-white text-3xl mb-4">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Dashboard Executivo</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-eye text-blue-500"></i>
+                            <span class="text-gray-700">Métricas em tempo real</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-users text-green-500"></i>
+                            <span class="text-gray-700">Taxa de participação</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-clock text-orange-500"></i>
+                            <span class="text-gray-700">Tempo médio de votação</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-trending-up text-purple-500"></i>
+                            <span class="text-gray-700">Análise de tendências</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-purple-50 rounded-lg">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-purple-700 font-medium">Implementação</span>
+                            <span class="text-purple-600 font-bold">Fase 3</span>
+                        </div>
+                        <div class="w-full bg-purple-200 rounded-full h-2 mt-2">
+                            <div class="bg-purple-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPIs e Métricas -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
+                    <div class="text-center mb-6">
+                        <div class="feature-icon inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-full text-white text-3xl mb-4">
+                            <i class="fas fa-analytics"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">KPIs e Métricas</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-percentage text-blue-500"></i>
+                            <span class="text-gray-700">Taxa de engajamento</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-chart-line text-green-500"></i>
+                            <span class="text-gray-700">Evolução da participação</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-balance-scale text-purple-500"></i>
+                            <span class="text-gray-700">Comparação entre eventos</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-target text-red-500"></i>
+                            <span class="text-gray-700">Metas e benchmarks</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-orange-50 rounded-lg">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-orange-700 font-medium">Implementação</span>
+                            <span class="text-orange-600 font-bold">Fase 4</span>
+                        </div>
+                        <div class="w-full bg-orange-200 rounded-full h-2 mt-2">
+                            <div class="bg-orange-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benchmarking -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
+                    <div class="text-center mb-6">
+                        <div class="feature-icon inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full text-white text-3xl mb-4">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Benchmarking</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-history text-blue-500"></i>
+                            <span class="text-gray-700">Histórico de workshops</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-chart-bar text-green-500"></i>
+                            <span class="text-gray-700">Comparação de performance</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-medal text-yellow-500"></i>
+                            <span class="text-gray-700">Ranking de equipes</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-lightbulb text-orange-500"></i>
+                            <span class="text-gray-700">Melhores práticas</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-teal-50 rounded-lg">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-teal-700 font-medium">Implementação</span>
+                            <span class="text-teal-600 font-bold">Fase 5</span>
+                        </div>
+                        <div class="w-full bg-teal-200 rounded-full h-2 mt-2">
+                            <div class="bg-teal-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integrações -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
+                    <div class="text-center mb-6">
+                        <div class="feature-icon inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full text-white text-3xl mb-4">
+                            <i class="fas fa-plug"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Integrações</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fab fa-slack text-purple-500"></i>
+                            <span class="text-gray-700">Notificações Slack</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fab fa-microsoft text-blue-500"></i>
+                            <span class="text-gray-700">Microsoft Teams</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-calendar text-green-500"></i>
+                            <span class="text-gray-700">Google Calendar</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-code text-orange-500"></i>
+                            <span class="text-gray-700">APIs REST</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-indigo-50 rounded-lg">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-indigo-700 font-medium">Implementação</span>
+                            <span class="text-indigo-600 font-bold">Fase 6</span>
+                        </div>
+                        <div class="w-full bg-indigo-200 rounded-full h-2 mt-2">
+                            <div class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mockup Section -->
+    <section class="py-16 px-4 bg-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    Visualize o <span class="text-blue-600">Futuro</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Mockups das funcionalidades que transformarão sua experiência de gestão
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Dashboard Mockup -->
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Dashboard Executivo</h3>
+                    <p class="text-gray-600 text-lg leading-relaxed">
+                        Imagine um painel com métricas em tempo real, gráficos interativos e KPIs que se atualizam automaticamente. 
+                        Visualize a participação, o progresso das votações e os resultados consolidados em uma interface intuitiva e profissional.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-gray-700">Métricas atualizadas em tempo real</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-gray-700">Gráficos responsivos e interativos</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-gray-700">Filtros avançados de dados</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl p-8 pulse-glow">
+                    <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-6 text-white mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-xl font-bold">Workshop de Inovação</h4>
+                            <span class="text-sm bg-white bg-opacity-20 px-3 py-1 rounded-full">Ativo</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold">24</div>
+                                <div class="text-sm opacity-90">Participantes</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold">87%</div>
+                                <div class="text-sm opacity-90">Engajamento</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold">18</div>
+                                <div class="text-sm opacity-90">Ideias</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 rounded-full" style="width: 75%"></div>
+                        </div>
+                        <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-green-500 rounded-full" style="width: 60%"></div>
+                        </div>
+                        <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500 rounded-full" style="width: 90%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 px-4 gradient-bg">
+        <div class="max-w-4xl mx-auto text-center text-white">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                Pronto para Revolucionar sua <span class="text-yellow-300">Gestão</span>?
+            </h2>
+            <p class="text-xl mb-8 opacity-90">
+                Junte-se ao futuro da gestão de workshops e transforme dados em insights estratégicos
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="deploy.html#admin" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors transform hover:scale-105">
+                    <i class="fas fa-rocket mr-2"></i>
+                    Começar Agora
+                </a>
+                <a href="deploy.html#home" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all transform hover:scale-105">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Voltar ao Sistema
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="mb-8">
+                <i class="fas fa-chart-line text-4xl text-blue-400 mb-4"></i>
+                <h3 class="text-2xl font-bold mb-2">Sistema de Avaliação e Votação</h3>
+                <p class="text-gray-400">Transformando workshops em insights estratégicos</p>
+            </div>
+            <div class="border-t border-gray-700 pt-8">
+                <p class="text-gray-400">&copy; 2025 Sistema de Avaliação. Desenvolvido por Bruno Almeida</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Animações de scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observar todos os cards
+        document.querySelectorAll('.card-hover').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Efeito de hover nos ícones
+        document.querySelectorAll('.feature-icon').forEach(icon => {
+            icon.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1) rotate(5deg)';
+            });
+            
+            icon.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+    </script>
+</body>
+</html>
